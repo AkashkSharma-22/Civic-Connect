@@ -1,73 +1,111 @@
-# Welcome to your Lovable project
+# CivicConnect Maharashtra Dashboard
 
-## Project info
+## Project Overview
 
-**URL**: https://lovable.dev/projects/a5663cad-d185-4d82-a0c9-c1b31b99bfe8
+CivicConnect is a comprehensive civic engagement platform designed to connect citizens with local government services in Maharashtra, India. The platform enables citizens to report civic issues, track their resolution, and engage with their local representatives.
 
-## How can I edit this code?
+## Key Features
 
-There are several ways of editing your application.
+- **Interactive Dashboard**: Real-time visualization of civic issues and their status
+- **Issue Reporting**: Citizens can report various civic issues (water, electricity, roads, sanitation)
+- **Progress Tracking**: Monitor the status and resolution progress of reported issues
+- **Local Representative Contact**: Easy access to contact information for local officials
+- **Responsive Design**: Fully functional on desktop, tablet, and mobile devices
+- **Multi-language Support**: Available in English and Marathi
 
-**Use Lovable**
+## How to Use This Project
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a5663cad-d185-4d82-a0c9-c1b31b99bfe8) and start prompting.
+### Option 1: Use the Standalone Dashboard
+Open `civicconnect-maharashtra-dashboard-fixed.html` directly in your web browser for the production-ready dashboard.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Option 2: Run the Full React Application
 
-**Use your preferred IDE**
+**Prerequisites:**
+- Node.js (version 16 or higher) and npm installed
+- Git (for cloning the repository)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+**Setup Steps:**
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Step 1: Clone the repository
+git clone https://github.com/AkashkSharma-22/Civic-Connect.git
 
-Follow these steps:
+# Step 2: Navigate to the project directory
+cd Civic-Connect
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Step 3: Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+**Available Scripts:**
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+Civic-Connect/
+├── 📁 Production Dashboard
+│   └── civicconnect-maharashtra-dashboard-fixed.html
+├── ⚛️ React Application
+│   ├── src/                    # Source code
+│   ├── public/                  # Static assets
+│   └── Configuration files
+├── 📋 Documentation
+│   ├── README.md               # This file
+│   ├── RUN-INSTRUCTIONS.md     # Setup guide
+│   └── VERIFICATION-REPORT.md  # Testing results
+├── 🧪 Testing Tools
+│   └── dashboard-test-suite.html
+└── 🎨 Assets & Configuration
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Technologies Used
 
-## What technologies are used for this project?
+- **Frontend:** React 18, TypeScript, Vite
+- **Styling:** Tailwind CSS, shadcn/ui components
+- **Icons:** Lucide React
+- **Charts:** Recharts for data visualization
+- **State Management:** React Query for data fetching
+- **Routing:** React Router DOM
+- **Forms:** React Hook Form with Zod validation
 
-This project is built with:
+## Testing & Verification
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The project includes comprehensive testing tools:
+- **Test Suite:** `dashboard-test-suite.html` - Complete functionality testing
+- **Verification Report:** `VERIFICATION-REPORT.md` - Detailed test results
+- **Cross-browser Compatibility:** Tested on Chrome, Firefox, Safari, Edge
 
-## How can I deploy this project?
+## Deployment Options
 
-Simply open [Lovable](https://lovable.dev/projects/a5663cad-d185-4d82-a0c9-c1b31b99bfe8) and click on Share -> Publish.
+### Static Hosting
+Upload the `civicconnect-maharashtra-dashboard-fixed.html` file to any static hosting service.
 
-## Can I connect a custom domain to my Lovable project?
+### Full Application Deployment
+Build and deploy the React application to platforms like:
+- Vercel
+- Netlify
+- GitHub Pages
+- AWS S3 + CloudFront
 
-Yes, you can!
+## Customization
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+The dashboard can be customized for different regions by:
+1. Modifying the geoJSON data for different districts
+2. Updating the representative contact information
+3. Adjusting the issue categories and priorities
+4. Customizing colors and branding
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Support & Contributing
+
+For issues, feature requests, or contributions, please visit the [GitHub repository](https://github.com/AkashkSharma-22/Civic-Connect).
+
+## License
+
+This project is open source and available under the MIT License.
