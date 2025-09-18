@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicConnect Maharashtra - Advanced Civic Issues Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --danger: #ef4444;
+            --warning: #f97316;
+            --success: #22c55e;
+            --high-priority: #dc2626;
+            --medium-priority: #ea580c;
+            --low-priority: #16a34a;
+            --no-reports: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            line-height: 1.6;
+        }
+
+        /* Prevent horizontal overflow */
+        .container {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .map-container {
+            height: 500px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        /* Responsive map height */
+        @media (max-width: 768px) {
+            .map-container {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .map-container {
+                height: 250px;
+            }
+        }
+
+        .priority-marker {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .priority-marker:hover {
+            transform: scale(1.2);
+            z-index: 1000 !important;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+
+        .issue-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .issue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-chip {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .filter-chip:hover {
+            transform: translateY(-1px);
+        }
+
+        .tooltip-custom {
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .chart-container {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Responsive charts */
+        .chart-container canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        [data-theme="dark"] .glass-morphism {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Mobile-specific fixes */
+        @media (max-width: 768px) {
+            .hero-gradient h1 {
+                font-size: 2.5rem;
+                line-height: 1.2;
+            }
+            
+            .hero-gradient p {
+                font-size: 1.1rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem;
+            }
+            
+            .filter-chip {
+                font-size: 0.875rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-gradient h1 {
+                font-size: 2rem;
+            }
+            
+            .hero-gradient p {
+                font-size: 1rem;
+            }
+            
+            .stat-card .text-3xl {
+                font-size: 2rem;
+            }
+        }
+
+        /* Fix for iOS Safari */
+        @supports (-webkit-touch-callout: none) {
+            .map-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* Ensure proper touch targets on mobile */
+        @media (max-width: 768px) {
+            .filter-chip,
+            .priority-badge,
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body data-theme="light" class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <img src="civicconnect-logo.svg" alt="CivicConnect" class="h-6 sm:h-8 w-auto">
+                    <div>
+                        <h1 class="text-lg sm:text-xl font-bold text-gray-900">CivicConnect Maharashtra</h1>
+                        <p class="text-xs sm:text-sm text-gray-600">AI-Powered Civic Issues Dashboard</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition">
+                        <i class="fas fa-moon text-gray-600 text-sm sm:text-base"></i>
+                    </button>
+                    <button id="report-issue-btn" class="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition flex items-center text-sm sm:text-base">
+                        <i class="fas fa-plus mr-1 sm:mr-2"></i>Report Issue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white py-12 sm:py-16 md:py-20">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 sm:mb-4">Real-Time Maharashtra Civic Issues</h1>
+            <p class="text-base sm:text-lg md:text-xl mb-6 sm:mb-8 opacity-90">AI-powered insights, citizen reporting, and government response tracking</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <button class="bg-white text-blue-600 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    <i class="fas fa-map-marked-alt mr-2"></i>View Map
+                </button>
+                <button class="border-2 border-white text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-semibold hover:bg-white/10 transition">
+                    <i class="fas fa-chart-line mr-2"></i>View Analytics
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Stats -->
+    <section class="py-8 sm:py-12 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8">
+                <div class="stat-card rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
+                    <div class="bg-red-100 w-10 h-10 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-lg sm:text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2" id="total-reports">1,247</h3>
+                    <p class="text-xs sm:text-base text-gray-600 font-medium">Total Reports</p>
+                    <p class="text-xs text-green-600 mt-1">↑ 12% this week</p>
+                </div>
+                
+                <div class="stat-card rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
+                    <div class="bg-orange-100 w-10 h-10 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                        <i class="fas fa-exclamation-circle text-orange-600 text-lg sm:text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-3xl font-bold text-red-600 mb-1 sm:mb-2" id="high-priority-count">89</h3>
+                    <p class="text-xs sm:text-base text-gray-600 font-medium">High Priority</p>
+                    <p class="text-xs text-red-600 mt-1">Needs immediate attention</p>
+                </div>
+                
+                <div class="stat-card rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
+                    <div class="bg-green-100 w-10 h-10 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                        <i class="fas fa-check-circle text-green-600 text-lg sm:text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2" id="resolved-count">743</h3>
+                    <p class="text-xs sm:text-base text-gray-600 font-medium">Resolved Issues</p>
+                    <p class="text-xs text-green-600 mt-1">59.6% resolution rate</p>
+                </div>
+                
+                <div class="stat-card rounded-xl sm:rounded-2xl p-4 sm:p-6 text-center">
+                    <div class="bg-purple-100 w-10 h-10 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+                        <i class="fas fa-map-marker-alt text-purple-600 text-lg sm:text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-3xl font-bold text-purple-600 mb-1 sm:mb-2" id="active-areas">23</h3>
+                    <p class="text-xs sm:text-base text-gray-600 font-medium">Active Districts</p>
+                    <p class="text-xs text-purple-600 mt-1">Across Maharashtra</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters and Controls -->
+    <section class="py-6 sm:py-8 bg-white">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
+                    <div class="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-3">
+                        <button class="filter-chip px-3 py-2 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-full font-medium text-xs sm:text-sm active" data-filter="all">
+                            All Issues
+                        </button>
+                        <button class="filter-chip px-3 py-2 sm:px-4 sm:py-2 bg-red-100 text-red-700 rounded-full font-medium text-xs sm:text-sm" data-filter="high">
+                            High Priority
+                        </button>
+                        <button class="filter-chip px-3 py-2 sm:px-4 sm:py-2 bg-orange-100 text-orange-700 rounded-full font-medium text-xs sm:text-sm" data-filter="medium">
+                            Medium Priority
+                        </button>
+                        <button class="filter-chip px-3 py-2 sm:px-4 sm:py-2 bg-green-100 text-green-700 rounded-full font-medium text-xs sm:text-sm" data-filter="low">
+                            Low Priority
+                        </button>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full sm:w-auto">
+                        <select id="district-filter" class="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                            <option value="">All Districts</option>
+                            <option value="mumbai">Mumbai</option>
+                            <option value="pune">Pune</option>
+                            <option value="nagpur">Nagpur</option>
+                            <option value="thane">Thane</option>
+                            <option value="nashik">Nashik</option>
+                            <option value="aurangabad">Aurangabad</option>
+                            <option value="solapur">Solapur</option>
+                            <option value="kolhapur">Kolhapur</option>
+                            <option value="amravati">Amravati</option>
+                            <option value="jalgaon">Jalgaon</option>
+                        </select>
+                        
+                        <input type="date" id="date-filter" class="w-full sm:w-auto px-3 py-2 sm:px-4 sm:py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 bg-white text-sm">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Dashboard -->
+    <section class="py-8 sm:py-12 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+                <!-- Map and Analytics -->
+                <div class="xl:col-span-2 space-y-4 sm:space-y-6 lg:space-y-8">
+                    <!-- Interactive Map -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+                        <div class="flex flex-col sm:flex-row items-center justify-between mb-4 sm:mb-6">
+                            <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">Maharashtra Issue Distribution</h2>
+                            <div class="flex items-center space-x-2 sm:space-x-4">
+                                <button id="fullscreen-map" class="text-gray-600 hover:text-gray-900 text-sm sm:text-base">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <div class="text-xs sm:text-sm text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Tap districts for details
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="map" class="map-container rounded-lg sm:rounded-xl"></div>
+                        
+                        <!-- Priority Legend -->
+                        <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-red-600 rounded-full"></div>
+                                <span class="text-xs sm:text-sm font-medium">High Priority</span>
+                            </div>
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-orange-600 rounded-full"></div>
+                                <span class="text-xs sm:text-sm font-medium">Medium Priority</span>
+                            </div>
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-green-600 rounded-full"></div>
+                                <span class="text-xs sm:text-sm font-medium">Low Priority</span>
+                            </div>
+                            <div class="flex items-center space-x-1 sm:space-x-2">
+                                <div class="w-3 h-3 sm:w-4 sm:h-4 bg-gray-500 rounded-full"></div>
+                                <span class="text-xs sm:text-sm font-medium">No Reports</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analytics Charts -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+                        <div class="chart-container p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                            <h3 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Issues by Category</h3>
+                            <canvas id="category-chart" width="300" height="150" class="w-full"></canvas>
+                        </div>
+                        
+                        <div class="chart-container p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+                            <h3 class="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Weekly Trends</h3>
+                            <canvas id="trend-chart" width="300" height="150" class="w-full"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-4 sm:space-y-6">
+                    <!-- AI Insights -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-brain text-purple-600 mr-2 text-sm sm:text-base"></i>
+                            AI Insights & Predictions
+                        </h3>
+                        
+                        <div class="space-y-3 sm:space-y-4">
+                            <div class="border-l-4 border-red-500 pl-3 py-2">
+                                <h4 class="font-semibold text-red-600 text-sm">🚨 Hotspot Alert</h4>
+                                <p class="text-xs sm:text-sm text-gray-600 mt-1">Mumbai Central shows 45% spike in water-related issues this week.</p>
+                                <button class="text-xs text-blue-600 mt-1 hover:underline">View Details</button>
+                            </div>
+                            
+                            <div class="border-l-4 border-orange-500 pl-3 py-2">
+                                <h4 class="font-semibold text-orange-600 text-sm">📊 Prediction</h4>
+                                <p class="text-xs sm:text-sm text-gray-600 mt-1">Nashik expected to see 30% increase in road maintenance post-monsoon.</p>
+                                <button class="text-xs text-blue-600 mt-1 hover:underline">Deploy Teams</button>
+                            </div>
+                            
+                            <div class="border-l-4 border-blue-500 pl-3 py-2">
+                                <h4 class="font-semibold text-blue-600 text-sm">💡 Recommendation</h4>
+                                <p class="text-xs sm:text-sm text-gray-600 mt-1">Deploy emergency response teams to Thane - critical concentration detected.</p>
+                                <button class="text-xs text-blue-600 mt-1 hover:underline">Send Alert</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Feed -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4 flex items-center">
+                            <i class="fas fa-rss text-green-600 mr-2 text-sm sm:text-base"></i>
+                            Live Reports Feed
+                        </h3>
+                        
+                        <div id="live-feed" class="space-y-2 sm:space-y-3 max-h-64 sm:max-h-96 overflow-y-auto">
+                            <!-- Live reports populated by JavaScript -->
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
+                        <h3 class="text-base sm:text-lg font-bold mb-3 sm:mb-4">Quick Actions</h3>
+                        
+                        <div class="space-y-2 sm:space-y-3">
+                            <button class="w-full bg-blue-600 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center text-sm sm:text-base">
+                                <i class="fas fa-download mr-2"></i>Export Report (CSV/PDF)
+                            </button>
+                            
+                            <button class="w-full bg-green-600 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-green-700 transition flex items-center justify-center text-sm sm:text-base">
+                                <i class="fas fa-bell mr-2"></i>Setup Priority Alerts
+                            </button>
+                            
+                            <button class="w-full bg-purple-600 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-purple-700 transition flex items-center justify-center text-sm sm:text-base">
+                                <i class="fas fa-share mr-2"></i>Share Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Issue Modal -->
+    <div id="report-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 w-full max-w-md sm:max-w-lg transform transition-all max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-4 sm:mb-6">
+                <h3 class="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Report New Issue</h3>
+                <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-lg sm:text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="issue-form" class="space-y-4 sm:space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Location/District</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" id="issue-location" required>
+                        <option value="">Select District</option>
+                        <option value="mumbai">Mumbai</option>
+                        <option value="pune">Pune</option>
+                        <option value="nagpur">Nagpur</option>
+                        <option value="thane">Thane</option>
+                        <option value="nashik">Nashik</option>
+                        <option value="aurangabad">Aurangabad</option>
+                        <option value="solapur">Solapur</option>
+                        <option value="kolhapur">Kolhapur</option>
+                        <option value="amravati">Amravati</option>
+                        <option value="jalgaon">Jalgaon</option>
+                        <option value="akola">Akola</option>
+                        <option value="sangli">Sangli</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Issue Type</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" id="issue-type" required>
+                        <option value="">Select Issue Type</option>
+                        <option value="water">Water Supply</option>
+                        <option value="road">Road Maintenance</option>
+                        <option value="electricity">Electricity</option>
+                        <option value="sanitation">Sanitation</option>
+                        <option value="waste">Waste Management</option>
+                        <option value="traffic">Traffic & Transport</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Priority Level</label>
+                    <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" id="issue-priority" required>
+                        <option value="low">Low - Minor inconvenience</option>
+                        <option value="medium">Medium - Affects daily life</option>
+                        <option value="high">High - Critical/Immediate danger</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Detailed Description</label>
+                    <textarea class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm" 
+                              rows="3" placeholder="Describe the issue in detail..." required></textarea>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Photos (Optional)</label>
+                    <input type="file" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" accept="image/*" multiple>
+                </div>
+                
+                <div class="flex gap-2 sm:gap-4 mt-4 sm:mt-6">
+                    <button type="button" id="cancel-report" class="flex-1 px-3 py-2 sm:px-4 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+                        Submit Report
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Error handling and loading states
+        window.addEventListener('error', function(e) {
+            console.warn('External resource failed to load:', e.filename);
+        });
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            
+            const icon = themeToggle.querySelector('i');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun text-yellow-500' : 'fas fa-moon text-gray-600';
+        });
+
+        // Accurate Maharashtra Districts Data with Realistic Issues
+        const maharashtraDistricts = [
+            { name: 'Mumbai City', lat: 19.0760, lng: 72.8777, reports: 245, priority: 'high', issues: ['water', 'traffic', 'sanitation'], population: 31291472, city: 'Mumbai', pincode: '400001' },
+            { name: 'Mumbai Suburban', lat: 19.0176, lng: 72.8562, reports: 189, priority: 'high', issues: ['road', 'electricity', 'traffic'], population: 9356962, city: 'Mumbai', pincode: '400002' },
+            { name: 'Pune', lat: 18.5204, lng: 73.8567, reports: 167, priority: 'medium', issues: ['water', 'road', 'sanitation'], population: 9435395, city: 'Pune', pincode: '411001' },
+            { name: 'Nagpur', lat: 21.1458, lng: 79.0882, reports: 134, priority: 'medium', issues: ['electricity', 'sanitation', 'waste'], population: 4653570, city: 'Nagpur', pincode: '440001' },
+            { name: 'Thane', lat: 19.2183, lng: 72.9781, reports: 156, priority: 'high', issues: ['road', 'traffic', 'water'], population: 8071602, city: 'Thane', pincode: '400601' },
+            { name: 'Nashik', lat: 20.0071, lng: 73.7833, reports: 123, priority: 'medium', issues: ['water', 'sanitation', 'road'], population: 6107187, city: 'Nashik', pincode: '422001' },
+            { name: 'Aurangabad', lat: 19.8762, lng: 75.3433, reports: 98, priority: 'medium', issues: ['water', 'electricity', 'road'], population: 3701284, city: 'Aurangabad', pincode: '431001' },
+            { name: 'Solapur', lat: 17.6599, lng: 75.9064, reports: 87, priority: 'low', issues: ['sanitation', 'road', 'waste'], population: 4317756, city: 'Solapur', pincode: '413001' },
+            { name: 'Kolhapur', lat: 16.7050, lng: 74.2433, reports: 76, priority: 'low', issues: ['electricity', 'road', 'sanitation'], population: 3874015, city: 'Kolhapur', pincode: '416001' },
+            { name: 'Sangli', lat: 16.8524, lng: 74.5815, reports: 45, priority: 'low', issues: ['road', 'water', 'electricity'], population: 2822143, city: 'Sangli', pincode: '416416' },
+            { name: 'Amravati', lat: 20.9374, lng: 77.7796, reports: 67, priority: 'medium', issues: ['water', 'sanitation', 'electricity'], population: 2888445, city: 'Amravati', pincode: '444601' },
+            { name: 'Akola', lat: 20.7051, lng: 77.0082, reports: 34, priority: 'low', issues: ['electricity', 'road', 'water'], population: 1818617, city: 'Akola', pincode: '444001' },
+            { name: 'Jalgaon', lat: 21.0077, lng: 75.5626, reports: 89, priority: 'medium', issues: ['water', 'road', 'electricity'], population: 4229917, city: 'Jalgaon', pincode: '425001' },
+            { name: 'Nanded', lat: 19.1383, lng: 77.3210, reports: 78, priority: 'medium', issues: ['sanitation', 'water', 'road'], population: 3361292, city: 'Nanded', pincode: '431601' },
+            { name: 'Beed', lat: 18.9894, lng: 75.7602, reports: 56, priority: 'low', issues: ['water', 'sanitation', 'road'], population: 2585049, city: 'Beed', pincode: '431122' },
+            { name: 'Parbhani', lat: 19.2683, lng: 76.7808, reports: 34, priority: 'low', issues: ['electricity', 'sanitation', 'water'], population: 1836086, city: 'Parbhani', pincode: '431401' },
+            { name: 'Latur', lat: 18.4088, lng: 76.5604, reports: 67, priority: 'medium', issues: ['water', 'sanitation', 'road'], population: 2454196, city: 'Latur', pincode: '413512' },
+            { name: 'Osmanabad', lat: 18.1811, lng: 76.0400, reports: 23, priority: 'low', issues: ['sanitation', 'road', 'water'], population: 1663116, city: 'Osmanabad', pincode: '413501' },
+            { name: 'Hingoli', lat: 19.7200, lng: 77.1500, reports: 12, priority: 'low', issues: ['water', 'electricity', 'sanitation'], population: 1177345, city: 'Hingoli', pincode: '431513' },
+            { name: 'Washim', lat: 20.1383, lng: 77.1300, reports: 34, priority: 'low', issues: ['electricity', 'road', 'water'], population: 1196714, city: 'Washim', pincode: '444505' },
+            { name: 'Buldhana', lat: 20.5275, lng: 76.1847, reports: 45, priority: 'low', issues: ['water', 'electricity', 'road'], population: 2588039, city: 'Buldhana', pincode: '443001' },
+            { name: 'Yavatmal', lat: 20.3894, lng: 78.1306, reports: 67, priority: 'medium', issues: ['water', 'sanitation', 'electricity'], population: 2772308, city: 'Yavatmal', pincode: '445001' },
+            { name: 'Wardha', lat: 20.7453, lng: 78.6022, reports: 34, priority: 'low', issues: ['electricity', 'road', 'water'], population: 1296157, city: 'Wardha', pincode: '442001' }
+        ];
+
+        // Initialize Map with proper bounds
+        function initMap() {
+            if (typeof L === 'undefined') {
+                console.error('Leaflet not loaded');
+                return;
+            }
+
+            window.map = L.map('map', {
+                scrollWheelZoom: true,
+                dragging: true,
+                touchZoom: true,
+                doubleClickZoom: true,
+                boxZoom: true,
+                keyboard: true,
+                tap: true
+            }).setView([19.5, 75.7], 6);
+            
+            // Add tile layer with proper attribution
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 18,
+                minZoom: 5
+            }).addTo(window.map);
+
+            // Fit map to Maharashtra bounds
+            const bounds = L.latLngBounds([
+                [15.6, 72.5], // Southwest
+                [22.0, 80.9]  // Northeast
+            ]);
+            window.map.fitBounds(bounds);
+
+            // Priority colors
+            const priorityColors = {
+                high: '#dc2626',
+                medium: '#ea580c',
+                low: '#16a34a',
+                none: '#6b7280'
+            };
+
+            // Add markers to map with accurate data
+            maharashtraDistricts.forEach(district => {
+                const markerColor = priorityColors[district.priority];
+                const markerSize = Math.max(8, Math.min(25, district.reports * 0.15));
+                
+                const marker = L.circleMarker([district.lat, district.lng], {
+                    radius: markerSize,
+                    fillColor: markerColor,
+                    color: '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.8,
+                    className: 'priority-marker'
+                }).addTo(window.map);
+
+                const popupContent = `
+                    <div class="p-3 min-w-48 max-w-64">
+                        <h3 class="font-bold text-base mb-2 text-gray-900">${district.name}</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Reports:</span>
+                                <span class="font-bold">${district.reports}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Priority:</span>
+                                <span class="priority-badge priority-${district.priority} text-xs">${district.priority.toUpperCase()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Population:</span>
+                                <span>${district.population.toLocaleString()}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">City:</span>
+                                <span>${district.city}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Pincode:</span>
+                                <span>${district.pincode}</span>
+                            </div>
+                            <div class="mt-2">
+                                <span class="text-gray-600">Main Issues:</span>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${district.issues.map(issue => 
+                                        `<span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">${issue}</span>`
+                                    ).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                marker.bindPopup(popupContent, {
+                    className: 'tooltip-custom',
+                    maxWidth: 300,
+                    minWidth: 200
+                });
+
+                // Add hover effect
+                marker.on('mouseover', function() {
+                    this.setStyle({
+                        fillOpacity: 1,
+                        weight: 3
+                    });
+                });
+
+                marker.on('mouseout', function() {
+                    this.setStyle({
+                        fillOpacity: 0.8,
+                        weight: 2
+                    });
+                });
+            });
+        }
+
+        // Initialize Charts
+        function initCharts() {
+            if (typeof Chart === 'undefined') {
+                console.warn('Chart.js not loaded');
+                return;
+            }
+
+            // Category Chart
+            const categoryCtx = document.getElementById('category-chart');
+            if (categoryCtx) {
+                new Chart(categoryCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Water Supply', 'Road Maintenance', 'Electricity', 'Sanitation', 'Waste Management', 'Traffic'],
+                        datasets: [{
+                            data: [234, 189, 156, 134, 98, 87],
+                            backgroundColor: ['#3b82f6', '#ef4444', '#f97316', '#10b981', '#8b5cf6', '#f59e0b'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 11
+                                    },
+                                    boxWidth: 12
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Trend Chart
+            const trendCtx = document.getElementById('trend-chart');
+            if (trendCtx) {
+                new Chart(trendCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                        datasets: [{
+                            label: 'Daily Reports',
+                            data: [45, 52, 38, 65, 59, 80, 95],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#3b82f6',
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                },
+                                ticks: {
+                                    font: {
+                                        size: 11
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Live Feed Updates with more realistic data
+        function updateLiveFeed() {
+            const liveFeed = document.getElementById('live-feed');
+            const recentReports = [
+                { location: 'Mumbai Central', type: 'Water Supply Disruption', priority: 'high', time: '2 min ago', status: 'pending', color: 'red' },
+                { location: 'Thane West', type: 'Pothole on Main Road', priority: 'medium', time: '5 min ago', status: 'in-progress', color: 'orange' },
+                { location: 'Pune University Area', type: 'Street Light Outage', priority: 'low', time: '8 min ago', status: 'resolved', color: 'green' },
+                { location: 'Nagpur Civil Lines', type: 'Garbage Collection Delay', priority: 'medium', time: '12 min ago', status: 'pending', color: 'orange' },
+                { location: 'Nashik Panchavati', type: 'Water Leakage', priority: 'high', time: '15 min ago', status: 'in-progress', color: 'red' },
+                { location: 'Aurangabad Railway Station', type: 'Traffic Signal Malfunction', priority: 'medium', time: '18 min ago', status: 'pending', color: 'orange' },
+                { location: 'Kolhapur Mahalaxmi Area', type: 'Drainage Overflow', priority: 'high', time: '22 min ago', status: 'in-progress', color: 'red' },
+                { location: 'Solapur Railway Lines', type: 'Electricity Outage', priority: 'medium', time: '25 min ago', status: 'resolved', color: 'green' }
+            ];
+
+            liveFeed.innerHTML = recentReports.map(report => `
+                <div class="issue-card p-3 sm:p-4 rounded-lg slide-in">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-semibold text-sm text-gray-900 truncate">${report.location}</h4>
+                            <p class="text-xs text-gray-600 mt-1">${report.type}</p>
+                            <p class="text-xs text-gray-500 mt-1">${report.time}</p>
+                        </div>
+                        <div class="flex flex-col items-end space-y-1 ml-2">
+                            <span class="priority-badge priority-${report.priority} text-xs whitespace-nowrap">${report.priority}</span>
+                            <span class="text-xs px-2 py-1 rounded-full ${report.status === 'resolved' ? 'bg-green-100 text-green-800' : report.status === 'in-progress' ? 'bg-blue-100 text-blue-800' : 'bg-orange-100 text-orange-800'} whitespace-nowrap">
+                                ${report.status}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Modal Functionality with improved mobile support
+        const reportModal = document.getElementById('report-modal');
+        const reportBtn = document.getElementById('report-issue-btn');
+        const closeModal = document.getElementById('close-modal');
+        const cancelReport = document.getElementById('cancel-report');
+
+        function openModal() {
+            reportModal.classList.remove('hidden');
+            reportModal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModalHandler() {
+            reportModal.classList.add('hidden');
+            reportModal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        reportBtn.addEventListener('click', openModal);
+        closeModal.addEventListener('click', closeModalHandler);
+        cancelReport.addEventListener('click', closeModalHandler);
+
+        // Close modal on backdrop click
+        reportModal.addEventListener('click', (e) => {
+            if (e.target === reportModal) {
+                closeModalHandler();
+            }
+        });
+
+        // Form submission
+        document.getElementById('issue-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            // Update stats
+            const totalReports = document.getElementById('total-reports');
+            const currentCount = parseInt(totalReports.textContent.replace(',', ''));
+            totalReports.textContent = (currentCount + 1).toLocaleString();
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            successMsg.textContent = 'Issue reported successfully!';
+            document.body.appendChild(successMsg);
+            
+            setTimeout(() => {
+                successMsg.remove();
+            }, 3000);
+            
+            closeModalHandler();
+            e.target.reset();
+        });
+
+        // Filter Functionality
+        document.querySelectorAll('.filter-chip').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.filter-chip').forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'text-white');
+                    btn.classList.add('bg-gray-100', 'text-gray-700');
+                });
+                
+                this.classList.add('bg-blue-600', 'text-white');
+                this.classList.remove('bg-gray-100', 'text-gray-700');
+                
+                const filter = this.dataset.filter;
+                console.log('Filtering by:', filter);
+                
+                // Implement filtering logic
+                filterMapMarkers(filter);
+            });
+        });
+
+        function filterMapMarkers(filter) {
+            if (!window.map) return;
+            
+            window.map.eachLayer(function(layer) {
+                if (layer instanceof L.CircleMarker) {
+                    const district = maharashtraDistricts.find(d => 
+                        Math.abs(d.lat - layer.getLatLng().lat) < 0.01 && 
+                        Math.abs(d.lng - layer.getLatLng().lng) < 0.01
+                    );
+                    
+                    if (district) {
+                        if (filter === 'all' || district.priority === filter) {
+                            layer.setStyle({ opacity: 1, fillOpacity: 0.8 });
+                        } else {
+                            layer.setStyle({ opacity: 0.3, fillOpacity: 0.2 });
+                        }
+                    }
+                }
+            });
+        }
+
+        // Real-time updates simulation
+        function simulateRealTimeUpdates() {
+            const totalReports = document.getElementById('total-reports');
+            const highPriority = document.getElementById('high-priority-count');
+            
+            setInterval(() => {
+                const currentTotal = parseInt(totalReports.textContent.replace(',', ''));
+                const newTotal = currentTotal + Math.floor(Math.random() * 2);
+                totalReports.textContent = newTotal.toLocaleString();
+                
+                // Occasionally add high-priority alerts
+                if (Math.random() < 0.05) {
+                    const currentHigh = parseInt(highPriority.textContent);
+                    highPriority.textContent = (currentHigh + 1).toString();
+                }
+            }, 45000);
+        }
+
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            initCharts();
+            updateLiveFeed();
+            simulateRealTimeUpdates();
+            
+            // Update live feed every 2 minutes
+            setInterval(updateLiveFeed, 120000);
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.map) {
+                    window.map.invalidateSize();
+                }
+            });
+            
+            // Fullscreen map functionality
+            document.getElementById('fullscreen-map').addEventListener('click', function() {
+                const mapContainer = document.getElementById('map');
+                if (mapContainer.requestFullscreen) {
+                    mapContainer.requestFullscreen();
+                } else if (mapContainer.webkitRequestFullscreen) {
+                    mapContainer.webkitRequestFullscreen();
+                } else if (mapContainer.msRequestFullscreen) {
+                    mapContainer.msRequestFullscreen();
+                }
+            });
+        });
+
+        // Prevent zoom on mobile devices
+        document.addEventListener('touchmove', function(e) {
+            if (e.scale !== 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+    </script>
+</body>
+</html>

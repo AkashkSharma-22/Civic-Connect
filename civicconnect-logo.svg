@@ -1,0 +1,23 @@
+<svg width="120" height="40" viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g clip-path="url(#clip0)">
+    <path d="M10 8C10 5.79086 11.7909 4 14 4H106C108.209 4 110 5.79086 110 8V32C110 34.2091 108.209 36 106 36H14C11.7909 36 10 34.2091 10 32V8Z" fill="url(#paint0_linear)"/>
+    <path d="M25 12L20 20L25 28L30 20L25 12Z" fill="white"/>
+    <path d="M35 12L30 20L35 28L40 20L35 12Z" fill="white"/>
+    <path d="M45 12L40 20L45 28L50 20L45 12Z" fill="white"/>
+    <path d="M55 12L50 20L55 28L60 20L55 12Z" fill="white"/>
+    <path d="M65 12L60 20L65 28L70 20L65 12Z" fill="white"/>
+    <path d="M75 12L70 20L75 28L80 20L75 12Z" fill="white"/>
+    <path d="M85 12L80 20L85 28L90 20L85 12Z" fill="white"/>
+    <path d="M95 12L90 20L95 28L100 20L95 12Z" fill="white"/>
+    <text x="30" y="25" fill="white" font-family="Inter, sans-serif" font-size="14" font-weight="700">CivicConnect</text>
+  </g>
+  <defs>
+    <linearGradient id="paint0_linear" x1="10" y1="4" x2="110" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2563EB"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <clipPath id="clip0">
+      <rect width="120" height="40" fill="white"/>
+    </clipPath>
+  </defs>
+</svg>
