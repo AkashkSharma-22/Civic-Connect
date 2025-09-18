@@ -458,19 +458,39 @@
                             </div>
                         </div>
                         
-                        <!-- Step 3: Photo Upload -->
+        
+                        <!-- Step 3: Capture Photo with Camera -->
                         <div id="step-3-content" class="step-content hidden">
                             <div class="mb-6">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="upload-photos">Upload Photos/Videos</label>
-                                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors cursor-pointer" id="upload-area">
-                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
-                                    <p class="text-gray-600 dark:text-gray-400" data-i18n="drag-drop">Drag and drop files here or click to browse</p>
-                                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-1" data-i18n="file-types">Supported: JPG, PNG, MP4 (Max 10MB)</p>
-                                    <input type="file" id="file-input" accept="image/*,video/*" multiple class="hidden">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Capture Photo (Camera + Geotag)
+                                </label>
+                        
+                                <!-- Live Camera Preview -->
+                                <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden w-full max-w-md mx-auto">
+                                    <video id="cameraStream" autoplay playsinline class="w-full h-64 object-cover bg-black"></video>
+                                    <canvas id="snapshotCanvas" class="hidden"></canvas>
                                 </div>
-                                
-                                <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                        
+                                <!-- Capture Button -->
+                                <div class="flex justify-center mt-4">
+                                    <button type="button" onclick="captureSnapshot()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-camera mr-2"></i> Capture Photo
+                                    </button>
+                                </div>
+                        
+                                <!-- Preview of Captured Image -->
+                                <div id="photoPreview" class="mt-4 hidden text-center">
+                                    <img id="capturedImage" class="rounded-lg shadow-md mx-auto max-h-64" alt="Captured photo preview">
+                                    <p id="geoTag" class="text-sm text-gray-600 dark:text-gray-400 mt-2"></p>
+                                </div>
+                        
+                                <!-- Hidden inputs to send with form -->
+                                <input type="hidden" id="photoData" name="photoData">
+                                <input type="hidden" id="latitude" name="latitude">
+                                <input type="hidden" id="longitude" name="longitude">
                             </div>
+                        
                             
                             <div class="flex justify-between">
                                 <button type="button" id="prev-step-3" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
@@ -856,6 +876,39 @@
     </div>
 
     <!-- Scripts -->
-    <script src="citizen.js"></script>
+    <script src="citizen.js">
+        const video = document.getElementById("cameraStream");
+        const canvas = document.getElementById("snapshotCanvas");
+        const ctx = canvas.getContext("2d");
+    
+        // Start camera on load
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+            .then(stream => { video.srcObject = stream; })
+            .catch(err => { console.error("Camera error:", err); });
+    
+        // Capture snapshot
+        function captureSnapshot() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+            const imageData = canvas.toDataURL("image/png");
+            document.getElementById("photoData").value = imageData;
+            document.getElementById("capturedImage").src = imageData;
+            document.getElementById("photoPreview").classList.remove("hidden");
+    
+            // Get location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    document.getElementById("latitude").value = pos.coords.latitude;
+                    document.getElementById("longitude").value = pos.coords.longitude;
+                    document.getElementById("geoTag").textContent =
+                        `Location: Lat ${pos.coords.latitude.toFixed(5)}, Lng ${pos.coords.longitude.toFixed(5)}`;
+                }, err => {
+                    document.getElementById("geoTag").textContent = "Location access denied.";
+                });
+            }
+        }
+    </script>
 </body>
 </html>
