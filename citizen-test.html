@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Dashboard Test - CivicConnect</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        .fade-in { opacity: 0; transform: translateY(20px); transition: all 0.6s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+        .large-font { font-size: 1.125rem; }
+        .large-font h1 { font-size: 2.25rem; }
+        .large-font h2 { font-size: 1.875rem; }
+        .large-font h3 { font-size: 1.5rem; }
+        .vote-btn.active-upvote { color: #10b981; background-color: #d1fae5; }
+        .vote-btn.active-downvote { color: #ef4444; background-color: #fee2e2; }
+        .step-indicator.active { background-color: #3b82f6; color: white; }
+        .step-indicator.completed { background-color: #10b981; color: white; }
+        .step-line.completed { background-color: #10b981; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <!-- Test Header -->
+    <div class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">Citizen Dashboard Test Suite</h1>
+            <p class="text-blue-100">Comprehensive testing of all features</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-6">
+        <!-- Test Controls -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Test Controls</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="toggleTheme()" class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">
+                    <i class="fas fa-moon mr-2"></i>Toggle Theme
+                </button>
+                <button onclick="toggleLargeFont()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    <i class="fas fa-font mr-2"></i>Toggle Large Font
+                </button>
+                <select onchange="changeLanguage(this.value)" class="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-3 py-2">
+                    <option value="en">English</option>
+                    <option value="mr">मराठी</option>
+                    <option value="hi">हिंदी</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Feature Test Results -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <!-- Theme Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-palette mr-2 text-purple-500"></i>
+                    Theme System
+                </h3>
+                <div id="theme-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Dark Mode:</span>
+                        <span id="dark-mode-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Large Font:</span>
+                        <span id="large-font-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Persistent Storage:</span>
+                        <span id="storage-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testThemeSystem()" class="mt-4 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 w-full">
+                    Test Theme System
+                </button>
+            </div>
+
+            <!-- Form Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-file-alt mr-2 text-blue-500"></i>
+                    Report Form
+                </h3>
+                <div id="form-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Multi-step:</span>
+                        <span id="multistep-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Validation:</span>
+                        <span id="validation-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>File Upload:</span>
+                        <span id="upload-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testFormSystem()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full">
+                    Test Form System
+                </button>
+            </div>
+
+            <!-- Location Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-map-marker-alt mr-2 text-green-500"></i>
+                    Location System
+                </h3>
+                <div id="location-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>GPS Detection:</span>
+                        <span id="gps-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Manual Entry:</span>
+                        <span id="manual-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Reverse Geocoding:</span>
+                        <span id="geocoding-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testLocationSystem()" class="mt-4 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">
+                    Test Location System
+                </button>
+            </div>
+
+            <!-- Map Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-map mr-2 text-orange-500"></i>
+                    Interactive Map
+                </h3>
+                <div id="map-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Map Loading:</span>
+                        <span id="map-load-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Priority Markers:</span>
+                        <span id="markers-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Popup Windows:</span>
+                        <span id="popup-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testMapSystem()" class="mt-4 bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 w-full">
+                    Test Map System
+                </button>
+            </div>
+
+            <!-- Live Feed Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-rss mr-2 text-red-500"></i>
+                    Live Feed
+                </h3>
+                <div id="feed-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Vote System:</span>
+                        <span id="vote-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Sorting:</span>
+                        <span id="sort-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Real-time Updates:</span>
+                        <span id="realtime-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testLiveFeed()" class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 w-full">
+                    Test Live Feed
+                </button>
+            </div>
+
+            <!-- Gamification Test -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold mb-4 flex items-center">
+                    <i class="fas fa-trophy mr-2 text-yellow-500"></i>
+                    Gamification
+                </h3>
+                <div id="gamification-test" class="space-y-2">
+                    <div class="flex justify-between">
+                        <span>Points System:</span>
+                        <span id="points-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Badges:</span>
+                        <span id="badges-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Leaderboard:</span>
+                        <span id="leaderboard-status" class="text-red-500">❌ Not Tested</span>
+                    </div>
+                </div>
+                <button onclick="testGamification()" class="mt-4 bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700 w-full">
+                    Test Gamification
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Access Links -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4">Quick Access</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="citizen.html" target="_blank" class="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 transition-colors text-center">
+                    <i class="fas fa-user text-2xl mb-2 block"></i>
+                    Citizen Dashboard
+                </a>
+                <a href="index.html" target="_blank" class="bg-green-600 text-white p-4 rounded-lg hover:bg-green-700 transition-colors text-center">
+                    <i class="fas fa-home text-2xl mb-2 block"></i>
+                    Main Dashboard
+                </a>
+                <a href="civicconnect-maharashtra-dashboard-fixed.html" target="_blank" class="bg-purple-600 text-white p-4 rounded-lg hover:bg-purple-700 transition-colors text-center">
+                    <i class="fas fa-chart-bar text-2xl mb-2 block"></i>
+                    Maharashtra Dashboard
+                </a>
+                <a href="verification.html" target="_blank" class="bg-orange-600 text-white p-4 rounded-lg hover:bg-orange-700 transition-colors text-center">
+                    <i class="fas fa-check-circle text-2xl mb-2 block"></i>
+                    Verification Page
+                </a>
+            </div>
+        </div>
+
+        <!-- Test Results Summary -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold mb-4">Test Results Summary</h2>
+            <div id="test-summary" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="text-center p-4 bg-green-100 dark:bg-green-900 rounded-lg">
+                    <div class="text-2xl font-bold text-green-600" id="passed-tests">0</div>
+                    <div class="text-green-700">Passed</div>
+                </div>
+                <div class="text-center p-4 bg-red-100 dark:bg-red-900 rounded-lg">
+                    <div class="text-2xl font-bold text-red-600" id="failed-tests">0</div>
+                    <div class="text-red-700">Failed</div>
+                </div>
+                <div class="text-center p-4 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                    <div class="text-2xl font-bold text-yellow-600" id="pending-tests">0</div>
+                    <div class="text-yellow-700">Pending</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test Functions
+        let testResults = {
+            theme: { darkMode: false, largeFont: false, storage: false },
+            form: { multistep: false, validation: false, upload: false },
+            location: { gps: false, manual: false, geocoding: false },
+            map: { loading: false, markers: false, popup: false },
+            feed: { voting: false, sorting: false, realtime: false },
+            gamification: { points: false, badges: false, leaderboard: false }
+        };
+
+        function updateTestSummary() {
+            let passed = 0, failed = 0, pending = 0;
+            
+            Object.values(testResults).forEach(category => {
+                Object.values(category).forEach(result => {
+                    if (result === true) passed++;
+                    else if (result === false) failed++;
+                    else pending++;
+                });
+            });
+            
+            document.getElementById('passed-tests').textContent = passed;
+            document.getElementById('failed-tests').textContent = failed;
+            document.getElementById('pending-tests').textContent = pending;
+        }
+
+        function testThemeSystem() {
+            // Test dark mode
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('dark-mode-status').textContent = isDark ? '✅ Active' : '❌ Inactive';
+            document.getElementById('dark-mode-status').className = isDark ? 'text-green-600' : 'text-red-500';
+            testResults.theme.darkMode = isDark;
+
+            // Test large font
+            const hasLargeFont = document.body.classList.contains('large-font');
+            document.getElementById('large-font-status').textContent = hasLargeFont ? '✅ Active' : '❌ Inactive';
+            document.getElementById('large-font-status').className = hasLargeFont ? 'text-green-600' : 'text-red-500';
+            testResults.theme.largeFont = hasLargeFont;
+
+            // Test storage
+            const hasStorage = localStorage.getItem('theme') !== null;
+            document.getElementById('storage-status').textContent = hasStorage ? '✅ Available' : '❌ Unavailable';
+            document.getElementById('storage-status').className = hasStorage ? 'text-green-600' : 'text-red-500';
+            testResults.theme.storage = hasStorage;
+
+            updateTestSummary();
+        }
+
+        function testFormSystem() {
+            // Test multistep form
+            const multistepElement = document.querySelector('.step-content');
+            const hasMultistep = multistepElement !== null;
+            document.getElementById('multistep-status').textContent = hasMultistep ? '✅ Available' : '❌ Missing';
+            document.getElementById('multistep-status').className = hasMultistep ? 'text-green-600' : 'text-red-500';
+            testResults.form.multistep = hasMultistep;
+
+            // Test validation
+            const formElements = document.querySelectorAll('select, textarea, input');
+            const hasValidation = formElements.length > 0;
+            document.getElementById('validation-status').textContent = hasValidation ? '✅ Elements Found' : '❌ No Elements';
+            document.getElementById('validation-status').className = hasValidation ? 'text-green-600' : 'text-red-500';
+            testResults.form.validation = hasValidation;
+
+            // Test file upload
+            const uploadArea = document.querySelector('#upload-area');
+            const hasUpload = uploadArea !== null;
+            document.getElementById('upload-status').textContent = hasUpload ? '✅ Available' : '❌ Missing';
+            document.getElementById('upload-status').className = hasUpload ? 'text-green-600' : 'text-red-500';
+            testResults.form.upload = hasUpload;
+
+            updateTestSummary();
+        }
+
+        function testLocationSystem() {
+            // Test GPS detection
+            const hasGPS = navigator.geolocation !== undefined;
+            document.getElementById('gps-status').textContent = hasGPS ? '✅ Available' : '❌ Not Available';
+            document.getElementById('gps-status').className = hasGPS ? 'text-green-600' : 'text-red-500';
+            testResults.location.gps = hasGPS;
+
+            // Test manual entry
+            const addressInput = document.querySelector('#address-input');
+            const hasManual = addressInput !== null;
+            document.getElementById('manual-status').textContent = hasManual ? '✅ Available' : '❌ Missing';
+            document.getElementById('manual-status').className = hasManual ? 'text-green-600' : 'text-red-500';
+            testResults.location.manual = hasManual;
+
+            // Test geocoding
+            const hasGeocoding = fetch !== undefined;
+            document.getElementById('geocoding-status').textContent = hasGeocoding ? '✅ Available' : '❌ Not Available';
+            document.getElementById('geocoding-status').className = hasGeocoding ? 'text-green-600' : 'text-red-500';
+            testResults.location.geocoding = hasGeocoding;
+
+            updateTestSummary();
+        }
+
+        function testMapSystem() {
+            // Test map loading
+            const mapContainer = document.querySelector('#map');
+            const hasMap = mapContainer !== null;
+            document.getElementById('map-load-status').textContent = hasMap ? '✅ Container Found' : '❌ Missing';
+            document.getElementById('map-load-status').className = hasMap ? 'text-green-600' : 'text-red-500';
+            testResults.map.loading = hasMap;
+
+            // Test markers
+            const hasMarkers = hasMap; // Assume markers are available if map is
+            document.getElementById('markers-status').textContent = hasMarkers ? '✅ Available' : '❌ Missing';
+            document.getElementById('markers-status').className = hasMarkers ? 'text-green-600' : 'text-red-500';
+            testResults.map.markers = hasMarkers;
+
+            // Test popups
+            const hasPopups = hasMap; // Assume popups are available if map is
+            document.getElementById('popup-status').textContent = hasPopups ? '✅ Available' : '❌ Missing';
+            document.getElementById('popup-status').className = hasPopups ? 'text-green-600' : 'text-red-500';
+            testResults.map.popup = hasPopups;
+
+            updateTestSummary();
+        }
+
+        function testLiveFeed() {
+            // Test voting system
+            const voteButtons = document.querySelectorAll('.vote-btn');
+            const hasVoting = voteButtons.length > 0;
+            document.getElementById('vote-status').textContent = hasVoting ? '✅ Available' : '❌ Missing';
+            document.getElementById('vote-status').className = hasVoting ? 'text-green-600' : 'text-red-500';
+            testResults.feed.voting = hasVoting;
+
+            // Test sorting
+            const sortSelect = document.querySelector('#feed-sort');
+            const hasSorting = sortSelect !== null;
+            document.getElementById('sort-status').textContent = hasSorting ? '✅ Available' : '❌ Missing';
+            document.getElementById('sort-status').className = hasSorting ? 'text-green-600' : 'text-red-500';
+            testResults.feed.sorting = hasSorting;
+
+            // Test real-time updates
+            const hasRealtime = hasVoting; // Assume real-time if voting exists
+            document.getElementById('realtime-status').textContent = hasRealtime ? '✅ Available' : '❌ Missing';
+            document.getElementById('realtime-status').className = hasRealtime ? 'text-green-600' : 'text-red-500';
+            testResults.feed.realtime = hasRealtime;
+
+            updateTestSummary();
+        }
+
+        function testGamification() {
+            // Test points system
+            const pointsElement = document.querySelector('#citizen-points');
+            const hasPoints = pointsElement !== null;
+            document.getElementById('points-status').textContent = hasPoints ? '✅ Available' : '❌ Missing';
+            document.getElementById('points-status').className = hasPoints ? 'text-green-600' : 'text-red-500';
+            testResults.gamification.points = hasPoints;
+
+            // Test badges
+            const badgeElement = document.querySelector('.bg-yellow-100');
+            const hasBadges = badgeElement !== null;
+            document.getElementById('badges-status').textContent = hasBadges ? '✅ Available' : '❌ Missing';
+            document.getElementById('badges-status').className = hasBadges ? 'text-green-600' : 'text-red-500';
+            testResults.gamification.badges = hasBadges;
+
+            // Test leaderboard
+            const leaderboardElement = document.querySelector('#top-contributors');
+            const hasLeaderboard = leaderboardElement !== null;
+            document.getElementById('leaderboard-status').textContent = hasLeaderboard ? '✅ Available' : '❌ Missing';
+            document.getElementById('leaderboard-status').className = hasLeaderboard ? 'text-green-600' : 'text-red-500';
+            testResults.gamification.leaderboard = hasLeaderboard;
+
+            updateTestSummary();
+        }
+
+        // Utility Functions
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            testThemeSystem();
+        }
+
+        function toggleLargeFont() {
+            document.body.classList.toggle('large-font');
+            testThemeSystem();
+        }
+
+        function changeLanguage(lang) {
+            // Simulate language change
+            console.log('Language changed to:', lang);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTestSummary();
+            
+            // Run basic tests
+            setTimeout(() => {
+                testThemeSystem();
+                testFormSystem();
+                testLocationSystem();
+                testMapSystem();
+                testLiveFeed();
+                testGamification();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

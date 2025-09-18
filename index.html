@@ -77,27 +77,77 @@
         .dark .border-gray-200 { border-color: #4b5563; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full bg-white/80 backdrop-blur-md border-b border-gray-200 z-50 transition-all duration-300">
+    <nav class="fixed top-0 w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16">
-                <div class="flex items-center">                <a class="text-2xl font-bold text-blue-600" href="#home">CivicConnect</a>
+                <div class="flex items-center space-x-3">
+                    <img src="civicconnect-logo.svg" alt="CivicConnect" class="h-8 w-auto">
+                    <a class="text-2xl font-bold text-blue-600 dark:text-blue-400" href="#home">CivicConnect</a>
                 </div>
                 
                 <div class="hidden md:flex space-x-8">
                     <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#home">Home</a>
+                    <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#civic-dashboard">Dashboard</a>
                     <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#features">Features</a>
                     <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#report">Report</a>
-                    <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#dashboard">Dashboard</a>
                     <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#about">About</a>
                     <a class="nav-link text-gray-700 hover:text-green-600 font-medium" href="#contact">Contact</a>
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                    <!-- Notification Bell -->
+                    <div class="relative">
+                        <button id="notificationBell" class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 transition-colors duration-200">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+                            </svg>
+                            <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+                        </button>
+                        <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                            </div>
+                            <div class="max-h-64 overflow-y-auto">
+                                <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">Critical Issue Alert</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">Water leakage in Mumbai - 2 min ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">High Priority Issue</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">Road maintenance in Pune - 15 min ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900 dark:text-white">Medium Priority Issue</p>
+                                            <p class="text-xs text-gray-600 dark:text-gray-400">Garbage collection in Nashik - 1 hour ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+                                <button class="text-sm text-green-600 dark:text-green-400 hover:underline">View all notifications</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="darkModeToggle" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors">
+                        <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path class="dark:hidden" d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                            <path class="hidden dark:block" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path>
                         </svg>
                     </button>
                     <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
@@ -146,6 +196,280 @@
         </div>
     </section>
 
+    <!-- Modern Civic Dashboard Section -->
+    <section class="py-20 bg-white dark:bg-gray-800" id="civic-dashboard">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-4">Maharashtra Civic Dashboard</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400">Real-time insights into civic issues across Maharashtra</p>
+            </div>
+            
+            <!-- Key Metrics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h2a1 1 0 100 2H6a4 4 0 01-4-4V5a4 4 0 014-4h5a4 4 0 014 4v6a4 4 0 01-4 4H9a1 1 0 100-2h2a2 2 0 002-2V5a2 2 0 00-2-2H9a1 1 0 00-1-1H6z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-blue-600 dark:text-blue-400">Total Reports</span>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">12,847</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">+12% from last month</div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/30 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-green-600 dark:text-green-400">Resolved Issues</span>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">8,932</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">69.5% resolution rate</div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 dark:from-yellow-900/30 dark:to-yellow-800/30 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="300">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-yellow-600 dark:text-yellow-400">Pending Issues</span>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">3,915</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Avg. resolution: 3.2 days</div>
+                </div>
+                
+                <div class="bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/30 p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300" data-aos="fade-up" data-aos-delay="400">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-medium text-red-600 dark:text-red-400">Critical Issues</span>
+                    </div>
+                    <div class="text-3xl font-bold text-gray-900 dark:text-white mb-1">156</div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">Requires immediate attention</div>
+                </div>
+            </div>
+            
+            <!-- Filters and Search -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6 mb-6 lg:mb-8" data-aos="fade-up" data-aos-delay="50">
+                <div class="flex flex-col xl:flex-row gap-4">
+                    <div class="flex-1">
+                        <input type="text" placeholder="Search issues, locations, or categories..." class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
+                    </div>
+                    <div class="flex flex-wrap gap-2 sm:gap-3">
+                        <select class="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
+                            <option>All Categories</option>
+                            <option>Roads & Infrastructure</option>
+                            <option>Water & Sanitation</option>
+                            <option>Electricity</option>
+                            <option>Waste Management</option>
+                            <option>Public Safety</option>
+                        </select>
+                        <select class="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
+                            <option>All Priorities</option>
+                            <option>Critical</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                        <select class="px-3 sm:px-4 py-2 sm:py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base">
+                            <option>All Districts</option>
+                            <option>Mumbai</option>
+                            <option>Pune</option>
+                            <option>Nashik</option>
+                            <option>Nagpur</option>
+                            <option>Aurangabad</option>
+                        </select>
+                        <button class="px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-colors duration-200 flex items-center justify-center text-sm sm:text-base">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="hidden sm:inline">Filter</span>
+                        </button>
+                        <button class="px-4 sm:px-6 py-2 sm:py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-medium transition-colors duration-200 flex items-center justify-center text-sm sm:text-base">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="hidden sm:inline">CSV</span>
+                        </button>
+                        <button class="px-4 sm:px-6 py-2 sm:py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors duration-200 flex items-center justify-center text-sm sm:text-base">
+                            <svg class="w-4 h-4 sm:w-5 sm:h-5 inline mr-1 sm:mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="hidden sm:inline">PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Interactive Map -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="500">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Maharashtra Civic Issues Map</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 bg-red-500 rounded-full"></span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Critical</span>
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full ml-3"></span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">High</span>
+                            <span class="w-3 h-3 bg-blue-500 rounded-full ml-3"></span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Medium</span>
+                            <span class="w-3 h-3 bg-green-500 rounded-full ml-3"></span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">Low</span>
+                        </div>
+                    </div>
+                    <div class="h-96 rounded-lg bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+                        <svg viewBox="0 0 800 600" class="w-full h-full">
+                            <!-- Maharashtra State Outline -->
+                            <path d="M 200 100 L 600 100 L 650 150 L 680 200 L 650 300 L 600 400 L 550 450 L 450 480 L 350 470 L 250 420 L 180 350 L 150 250 L 170 150 Z" 
+                                  fill="#f3f4f6" stroke="#374151" stroke-width="2" class="dark:fill-gray-600"/>
+                            
+                            <!-- Mumbai - High Priority (Red) -->
+                            <circle cx="300" cy="350" r="25" fill="#ef4444" stroke="#dc2626" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-red-600 transition-colors duration-200 map-region"
+                                    data-region="Mumbai" data-priority="high" data-reports="45"/>
+                            <text x="300" y="355" text-anchor="middle" class="fill-white text-sm font-semibold">45</text>
+                            
+                            <!-- Pune - No Reports (Gray) -->
+                            <circle cx="400" cy="300" r="20" fill="#9ca3af" stroke="#6b7280" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-gray-500 transition-colors duration-200 map-region"
+                                    data-region="Pune" data-priority="none" data-reports="0"/>
+                            <text x="400" y="305" text-anchor="middle" class="fill-white text-xs font-semibold">0</text>
+                            
+                            <!-- Nagpur - No Reports (Gray) -->
+                            <circle cx="550" cy="200" r="18" fill="#9ca3af" stroke="#6b7280" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-gray-500 transition-colors duration-200 map-region"
+                                    data-region="Nagpur" data-priority="none" data-reports="0"/>
+                            <text x="550" y="205" text-anchor="middle" class="fill-white text-xs font-semibold">0</text>
+                            
+                            <!-- Nashik - Medium Priority (Yellow) -->
+                            <circle cx="350" cy="250" r="22" fill="#f59e0b" stroke="#d97706" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-amber-600 transition-colors duration-200 map-region"
+                                    data-region="Nashik" data-priority="medium" data-reports="23"/>
+                            <text x="350" y="255" text-anchor="middle" class="fill-white text-sm font-semibold">23</text>
+                            
+                            <!-- Thane - High Priority (Red) -->
+                            <circle cx="320" cy="320" r="24" fill="#ef4444" stroke="#dc2626" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-red-600 transition-colors duration-200 map-region"
+                                    data-region="Thane" data-priority="high" data-reports="38"/>
+                            <text x="320" y="325" text-anchor="middle" class="fill-white text-sm font-semibold">38</text>
+                            
+                            <!-- Aurangabad - Low Priority (Green) -->
+                            <circle cx="450" cy="280" r="19" fill="#10b981" stroke="#059669" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-green-600 transition-colors duration-200 map-region"
+                                    data-region="Aurangabad" data-priority="low" data-reports="12"/>
+                            <text x="450" y="285" text-anchor="middle" class="fill-white text-xs font-semibold">12</text>
+                            
+                            <!-- Solapur - Medium Priority (Yellow) -->
+                            <circle cx="420" cy="380" r="21" fill="#f59e0b" stroke="#d97706" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-amber-600 transition-colors duration-200 map-region"
+                                    data-region="Solapur" data-priority="medium" data-reports="18"/>
+                            <text x="420" y="385" text-anchor="middle" class="fill-white text-sm font-semibold">18</text>
+                            
+                            <!-- Kolhapur - Low Priority (Green) -->
+                            <circle cx="280" cy="420" r="17" fill="#10b981" stroke="#059669" stroke-width="2" 
+                                    class="cursor-pointer hover:fill-green-600 transition-colors duration-200 map-region"
+                                    data-region="Kolhapur" data-priority="low" data-reports="8"/>
+                            <text x="280" y="425" text-anchor="middle" class="fill-white text-xs font-semibold">8</text>
+                        </svg>
+                        
+                        <!-- Tooltip -->
+                        <div id="mapTooltip" class="absolute bg-gray-900 dark:bg-gray-800 text-white p-3 rounded-lg text-sm hidden transition-opacity duration-200 z-10">
+                            <div id="tooltipContent"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Live Feed Panel -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6" data-aos="fade-up" data-aos-delay="600">
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-6">Live Feed</h3>
+                    <div class="space-y-4 max-h-96 overflow-y-auto">
+                        <div class="border-l-4 border-red-500 pl-4 py-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Mumbai</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">2 min ago</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Critical water leakage reported in Andheri West</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-yellow-500 pl-4 py-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Pune</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Road maintenance needed on FC Road</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-blue-500 pl-4 py-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Nashik</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">1 hour ago</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Garbage collection delayed in residential area</p>
+                        </div>
+                        
+                        <div class="border-l-4 border-green-500 pl-4 py-2">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">Nagpur</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">Street light maintenance request</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts Section -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mt-6 lg:mt-8">
+                <!-- Issues by Category Chart -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6" data-aos="fade-up" data-aos-delay="700">
+                    <div class="flex items-center justify-between mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Issues by Category</h3>
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 bg-blue-500 rounded-full"></span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Roads</span>
+                            <span class="w-3 h-3 bg-green-500 rounded-full ml-2"></span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Water</span>
+                            <span class="w-3 h-3 bg-yellow-500 rounded-full ml-2"></span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Waste</span>
+                            <span class="w-3 h-3 bg-red-500 rounded-full ml-2"></span>
+                            <span class="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Safety</span>
+                        </div>
+                    </div>
+                    <div class="h-48 sm:h-64 relative">
+                        <canvas id="categoryChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Issue Trends Chart -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-4 sm:p-6" data-aos="fade-up" data-aos-delay="800">
+                    <div class="flex items-center justify-between mb-4 sm:mb-6">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Issue Trends</h3>
+                        <div class="flex space-x-1 sm:space-x-2">
+                            <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-lg">7D</button>
+                            <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">30D</button>
+                            <button class="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">90D</button>
+                        </div>
+                    </div>
+                    <div class="h-48 sm:h-64 relative">
+                        <canvas id="trendsChart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Features Section -->
     <section class="py-20 bg-white" id="features">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -185,16 +509,7 @@
                     <p class="text-gray-600">Upload photos and videos to support your reports</p>
                 </div>
                 
-                <div class="bg-white p-8 rounded-xl shadow-lg hover-lift" data-aos="fade-up" data-aos-delay="400">
-                    <div class="w-16 h-16 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                            <path clip-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h2a1 1 0 100 2H6a4 4 0 01-4-4V5a4 4 0 014-4h5a4 4 0 014 4v6a4 4 0 01-4 4H9a1 1 0 100-2h2a2 2 0 002-2V5a2 2 0 00-2-2H9a1 1 0 00-1-1H6z" fill-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-2">National Dashboard</h3>
-                    <p class="text-gray-600">Real-time insights across all cities in India</p>
-                </div>
+
                 
                 <div class="bg-white p-8 rounded-xl shadow-lg hover-lift" data-aos="fade-up" data-aos-delay="500">
                     <div class="w-16 h-16 bg-red-100 rounded-lg flex items-center justify-center mb-4">
@@ -287,286 +602,9 @@
         </div>
     </section>
 
-    <!-- Dashboard Section -->
-    <section class="py-20 bg-white" id="dashboard">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">National Dashboard</h2>
-                <p class="text-xl text-gray-600">Real-time insights across India</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                <!-- Sidebar Filters -->
-                <div class="lg:col-span-1" data-aos="fade-right">
-                    <div class="bg-gray-50 rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Filters</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" id="cityFilter">
-                                    <option value="">All Cities</option>
-                                    <option value="delhi">Delhi</option>
-                                    <option value="mumbai">Mumbai</option>
-                                    <option value="bangalore">Bangalore</option>
-                                    <option value="chennai">Chennai</option>
-                                    <option value="kolkata">Kolkata</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" id="categoryFilter">
-                                    <option value="">All Categories</option>
-                                    <option value="garbage">Garbage</option>
-                                    <option value="roads">Roads</option>
-                                    <option value="water">Water</option>
-                                    <option value="electricity">Electricity</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" id="statusFilter">
-                                    <option value="">All Status</option>
-                                    <option value="open">Open</option>
-                                    <option value="in-progress">In Progress</option>
-                                    <option value="resolved">Resolved</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Main Dashboard Content -->
-                <div class="lg:col-span-3 space-y-8" data-aos="fade-left">
-                    <!-- Analytics Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="bg-blue-50 p-6 rounded-xl">
-                            <h4 class="text-sm font-medium text-blue-600">Total Issues</h4>
-                            <p class="text-2xl font-bold text-blue-900 mt-1">12,500</p>
-                        </div>
-                        <div class="bg-red-50 p-6 rounded-xl">
-                            <h4 class="text-sm font-medium text-red-600">Open</h4>
-                            <p class="text-2xl font-bold text-red-900 mt-1">3,800</p>
-                        </div>
-                        <div class="bg-green-50 p-6 rounded-xl">
-                            <h4 class="text-sm font-medium text-green-600">Resolved</h4>
-                            <p class="text-2xl font-bold text-green-900 mt-1">8,700</p>
-                        </div>
-                        <div class="bg-yellow-50 p-6 rounded-xl">
-                            <h4 class="text-sm font-medium text-yellow-600">Avg. Time</h4>
-                            <p class="text-2xl font-bold text-yellow-900 mt-1">3.2 days</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Map -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4">India Heatmap</h3>
-                        <div class="h-96 rounded-lg overflow-hidden" id="indiaMap"></div>
-                    </div>
-                    
-                    <!-- Charts -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="bg-white rounded-xl shadow-lg p-6">
-                            <h3 class="text-lg font-semibold mb-4">Issues by Category</h3>
-                            <canvas height="200" id="categoryChart" width="400"></canvas>
-                        </div>
-                        <div class="bg-white rounded-xl shadow-lg p-6">
-                            <h3 class="text-lg font-semibold mb-4">Weekly Trends</h3>
-                            <canvas height="200" id="trendChart" width="400"></canvas>
-                        </div>
-                    </div>
-                    
-                    <!-- Leaderboard -->
-                    <div class="bg-white rounded-xl shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4">Top Contributors</h3>
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead>
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issues Reported</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200" id="leaderboardBody">
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">1</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rajesh Kumar</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">156</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">1,245</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">2</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Priya Sharma</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">142</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">1,136</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">3</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Amit Patel</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">128</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600 font-semibold">1,024</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- About Section -->
-    <section class="py-20 bg-gray-50" id="about">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">About CivicConnect</h2>
-                <p class="text-xl text-gray-600">Building smarter cities together</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
-                <div data-aos="fade-right">
-                    <h3 class="text-2xl font-semibold mb-4">Our Mission</h3>
-                    <p class="text-gray-600 mb-4">
-                        To empower citizens with AI-powered tools for effective civic issue reporting and resolution, 
-                        creating cleaner, safer, and more efficient cities across India.
-                    </p>
-                    <h3 class="text-2xl font-semibold mb-4">Our Vision</h3>
-                    <p class="text-gray-600">
-                        A future where every citizen can actively participate in city governance, 
-                        with transparent and efficient resolution of civic issues through technology.
-                    </p>
-                </div>
-                <div data-aos="fade-left">
-                    <img alt="Team working" class="rounded-xl shadow-lg" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=800&amp;q=80"/>
-                </div>
-            </div>
-            
-            <!-- Team Section -->
-            <div class="text-center mb-12" data-aos="fade-up">
-                <h3 class="text-3xl font-bold text-gray-900 mb-4">Meet Our Team</h3>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white rounded-xl shadow-lg p-6 text-center hover-lift" data-aos="fade-up" data-aos-delay="100">
-                    <img alt="Team member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=150&amp;q=80"/>
-                    <h4 class="text-xl font-semibold">Arjun Mehta</h4>
-                    <p class="text-blue-600">CEO &amp; Founder</p>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-lg p-6 text-center hover-lift" data-aos="fade-up" data-aos-delay="200">
-                    <img alt="Team member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=150&amp;q=80"/>
-                    <h4 class="text-xl font-semibold">Neha Singh</h4>
-                    <p class="text-blue-600">CTO</p>
-                </div>
-                
-                <div class="bg-white rounded-xl shadow-lg p-6 text-center hover-lift" data-aos="fade-up" data-aos-delay="300">
-                    <img alt="Team member" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&amp;auto=format&amp;fit=crop&amp;w=150&amp;q=80"/>
-                    <h4 class="text-xl font-semibold">Rahul Gupta</h4>
-                    <p class="text-blue-600">Head of Product</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Contact Section -->
-    <section class="py-20 bg-white" id="contact">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16" data-aos="fade-up">
-                <h2 class="text-4xl font-bold text-gray-900 mb-4">Get in Touch</h2>
-                <p class="text-xl text-gray-600">We'd love to hear from you</p>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div data-aos="fade-right">
-                    <form class="bg-gray-50 rounded-xl p-8" id="contactForm">
-                        <div class="space-y-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                                <input class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required="" type="text"/>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                <input class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required="" type="email"/>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                                <textarea class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required="" rows="4"></textarea>
-                            </div>
-                            
-                            <button class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold" type="submit">
-                                Send Message
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div data-aos="fade-left">
-                    <div class="bg-gray-50 rounded-xl p-8 h-full">
-                        <h3 class="text-xl font-semibold mb-4">Contact Information</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
-                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
-                                </svg>
-                                <span class="text-gray-600">contact@civicconnect.in</span>
-                            </div>
-                            <div class="flex items-center">
-                                <svg class="w-5 h-5 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
-                                </svg>
-                                <span class="text-gray-600">+91 98765 43210</span>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-6">
-                            <h4 class="text-lg font-semibold mb-2">Office Location</h4>
-                            <div class="h-64 rounded-lg overflow-hidden" id="officeMap"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-xl font-bold text-blue-400 mb-4">CivicConnect</h3>
-                    <p class="text-gray-400">Smart Cities, Smarter Solutions</p>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
-                    <ul class="space-y-2">
-                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#home">Home</a></li>
-                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#features">Features</a></li>
-                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#report">Report Issue</a></li>
-                        <li><a class="text-gray-400 hover:text-white transition-colors" href="#dashboard">Dashboard</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li>contact@civicconnect.in</li>
-                        <li>+91 98765 43210</li>
-                        <li>New Delhi, India</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
-                    <div class="flex space-x-4">
-                        <a class="text-gray-400 hover:text-white transition-colors" href="#">
+-400 hover:text-white transition-colors" href="#">
                             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path>
                             </svg>
@@ -607,60 +645,244 @@
         </div>
     </div>
 
+    <!-- Dark Mode Script -->
+    <script>
+        // Dark mode functionality
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const html = document.documentElement;
+        
+        // Check for saved theme preference or default to light mode
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        
+        // Apply the saved theme on page load
+        if (currentTheme === 'dark') {
+            html.classList.add('dark');
+        }
+        
+        // Toggle dark mode
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                html.classList.toggle('dark');
+                
+                // Save the preference
+                const theme = html.classList.contains('dark') ? 'dark' : 'light';
+                localStorage.setItem('theme', theme);
+            });
+        }
+    </script>
+    
     <!-- JavaScript -->
     <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Notification system
+        const notificationBell = document.getElementById('notificationBell');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        
+        notificationBell.addEventListener('click', () => {
+            notificationDropdown.classList.toggle('hidden');
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!notificationBell.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                notificationDropdown.classList.add('hidden');
+            }
+        });
+        
+        // Simulate real-time notifications
+        setInterval(() => {
+            const notificationDot = notificationBell.querySelector('span');
+            notificationDot.style.animation = 'pulse 1s infinite';
+        }, 30000); // Pulse every 30 seconds
+        
+        // Interactive Map Functionality
+        const mapRegions = document.querySelectorAll('.map-region');
+        const mapTooltip = document.getElementById('mapTooltip');
+        const tooltipContent = document.getElementById('tooltipContent');
+        
+        mapRegions.forEach(region => {
+            region.addEventListener('mouseenter', (e) => {
+                const regionName = e.target.getAttribute('data-region');
+                const priority = e.target.getAttribute('data-priority');
+                const reports = e.target.getAttribute('data-reports');
+                
+                let priorityText = '';
+                let priorityColor = '';
+                
+                switch(priority) {
+                    case 'high':
+                        priorityText = 'High Priority';
+                        priorityColor = 'text-red-400';
+                        break;
+                    case 'medium':
+                        priorityText = 'Medium Priority';
+                        priorityColor = 'text-yellow-400';
+                        break;
+                    case 'low':
+                        priorityText = 'Low Priority';
+                        priorityColor = 'text-green-400';
+                        break;
+                    case 'none':
+                        priorityText = 'No Reports';
+                        priorityColor = 'text-gray-400';
+                        break;
+                }
+                
+                tooltipContent.innerHTML = `
+                    <div class="font-semibold">${regionName}</div>
+                    <div class="${priorityColor}">${priorityText}</div>
+                    <div class="text-xs text-gray-300 mt-1">${reports} reports</div>
+                `;
+                
+                mapTooltip.classList.remove('hidden');
+                
+                // Position tooltip
+                const rect = e.target.getBoundingClientRect();
+                const containerRect = e.target.closest('svg').getBoundingClientRect();
+                
+                mapTooltip.style.left = (rect.left - containerRect.left + rect.width / 2) + 'px';
+                mapTooltip.style.top = (rect.top - containerRect.top - 50) + 'px';
+                mapTooltip.style.transform = 'translateX(-50%)';
+            });
+            
+            region.addEventListener('mouseleave', () => {
+                mapTooltip.classList.add('hidden');
+            });
+            
+            region.addEventListener('click', (e) => {
+                const regionName = e.target.getAttribute('data-region');
+                const reports = e.target.getAttribute('data-reports');
+                
+                // Filter dashboard by region
+                console.log(`Filtering dashboard for ${regionName} with ${reports} reports`);
+                
+                // Add visual feedback
+                e.target.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    e.target.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // Chart.js Initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            // Category Chart (Doughnut)
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx) {
+                new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Road Issues', 'Water Supply', 'Waste Management', 'Street Lighting', 'Public Safety', 'Others'],
+                        datasets: [{
+                            data: [35, 25, 20, 10, 7, 3],
+                            backgroundColor: [
+                                '#ef4444', // red
+                                '#3b82f6', // blue
+                                '#10b981', // green
+                                '#f59e0b', // yellow
+                                '#8b5cf6', // purple
+                                '#6b7280'  // gray
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Trends Chart (Line)
+            const trendsCtx = document.getElementById('trendsChart');
+            if (trendsCtx) {
+                new Chart(trendsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        datasets: [{
+                            label: 'Total Reports',
+                            data: [120, 135, 125, 140, 155, 165, 180, 175, 190, 185, 200, 210],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Resolved Issues',
+                            data: [110, 125, 115, 130, 145, 155, 170, 165, 180, 175, 190, 200],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Chart period button functionality
+            const chartButtons = document.querySelectorAll('[data-chart-period]');
+            chartButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    chartButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
+                    chartButtons.forEach(btn => btn.classList.add('bg-gray-200', 'text-gray-700'));
+                    
+                    // Add active class to clicked button
+                    this.classList.remove('bg-gray-200', 'text-gray-700');
+                    this.classList.add('bg-blue-600', 'text-white');
+                    
+                    // Here you could update the chart data based on the selected period
+                    const period = this.getAttribute('data-chart-period');
+                    console.log(`Chart period changed to: ${period}`);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
 
-<title>CivicConnect - Maharashtra Dashboard</title>
-// ... existing code ...
-<section id="dashboard" class="py-20 bg-gray-50 dark:bg-gray-900">
-    <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-            <h2 data-aos="fade-up" class="text-4xl font-bold text-gray-800 dark:text-white">Maharashtra Civic Issues Dashboard</h2>
-            <p data-aos="fade-up" data-aos-delay="100" class="text-lg text-gray-600 dark:text-gray-400 mt-2">Interactive map showing civic issues across Maharashtra districts</p>
-        </div>
 
-        <!-- Priority Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-            <div data-aos="fade-up" class="bg-red-100 dark:bg-red-900/50 p-6 rounded-2xl shadow-lg text-center">
-                <h3 class="text-lg font-semibold text-red-800 dark:text-red-200">Critical Issues</h3>
-                <p id="critical-issues" class="text-4xl font-bold text-red-600 dark:text-red-400 mt-2">23</p>
-            </div>
-            <div data-aos="fade-up" data-aos-delay="100" class="bg-yellow-100 dark:bg-yellow-900/50 p-6 rounded-2xl shadow-lg text-center">
-                <h3 class="text-lg font-semibold text-yellow-800 dark:text-yellow-200">High Priority</h3>
-                <p id="high-priority-issues" class="text-4xl font-bold text-yellow-600 dark:text-yellow-400 mt-2">67</p>
-            </div>
-            <div data-aos="fade-up" data-aos-delay="200" class="bg-blue-100 dark:bg-blue-900/50 p-6 rounded-2xl shadow-lg text-center">
-                <h3 class="text-lg font-semibold text-blue-800 dark:text-blue-200">Medium Priority</h3>
-                <p id="medium-priority-issues" class="text-4xl font-bold text-blue-600 dark:text-blue-400 mt-2">156</p>
-            </div>
-            <div data-aos="fade-up" data-aos-delay="300" class="bg-green-100 dark:bg-green-900/50 p-6 rounded-2xl shadow-lg text-center">
-                <h3 class="text-lg font-semibold text-green-800 dark:text-green-200">Low Priority</h3>
-                <p id="low-priority-issues" class="text-4xl font-bold text-green-600 dark:text-green-400 mt-2">234</p>
-            </div>
-        </div>
-
-        <!-- Map and Legend -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg">
-                <div id="maharashtra-map" class="h-[600px] rounded-lg"></div>
-            </div>
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
-                <h3 class="text-xl font-bold mb-4">Legend</h3>
-                <ul class="space-y-3 text-gray-700 dark:text-gray-300">
-                    <li class="flex items-center"><span class="h-4 w-4 rounded-full bg-red-500 mr-3"></span>Critical (50+ reports)</li>
-                    <li class="flex items-center"><span class="h-4 w-4 rounded-full bg-yellow-500 mr-3"></span>High (20-49 reports)</li>
-                    <li class="flex items-center"><span class="h-4 w-4 rounded-full bg-blue-500 mr-3"></span>Medium (10-19 reports)</li>
-                    <li class="flex items-center"><span class="h-4 w-4 rounded-full bg-green-500 mr-3"></span>Low (1-9 reports)</li>
-                </ul>
-
-                <h3 class="text-xl font-bold mt-8 mb-4">Top Districts</h3>
-                <div id="top-districts" class="space-y-4"></div>
-            </div>
-        </div>
-    </div>
-</section>
 
     <!-- About Section -->
     <section class="py-20 bg-gray-50" id="about">

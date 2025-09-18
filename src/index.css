@@ -494,3 +494,76 @@ body {
     color: var(--slate-800);
   }
 }
+
+/* Manual dark mode with class */
+.dark {
+  --slate-50: #0f172a;
+  --slate-100: #1e293b;
+  --slate-200: #334155;
+  --slate-300: #475569;
+  --slate-400: #64748b;
+  --slate-500: #94a3b8;
+  --slate-600: #cbd5e1;
+  --slate-700: #e2e8f0;
+  --slate-800: #f1f5f9;
+  --slate-900: #f8fafc;
+  
+  --primary-50: #1e3a8a;
+  --primary-100: #1d4ed8;
+  --primary-500: #60a5fa;
+  --primary-600: #93c5fd;
+  --primary-700: #bfdbfe;
+  --primary-900: #dbeafe;
+  
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark body {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark .bg-white {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-50 {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b;
+}
+
+.dark .bg-gray-200 {
+  background-color: #334155;
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc;
+}
+
+.dark .text-gray-800 {
+  color: #f1f5f9;
+}
+
+.dark .text-gray-700 {
+  color: #e2e8f0;
+}
+
+.dark .text-gray-600 {
+  color: #cbd5e1;
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8;
+}
+
+.dark .border-gray-200 {
+  border-color: #334155;
+}
+
+.dark .border-gray-300 {
+  border-color: #475569;
+}

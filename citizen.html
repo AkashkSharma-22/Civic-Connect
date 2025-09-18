@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicConnect - Citizen Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- AOS for Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #06b6d4;
+        }
+        
+        .dark {
+            --primary: #60a5fa;
+            --secondary: #94a3b8;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --info: #22d3ee;
+        }
+        
+        .map-container {
+            height: 400px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .dark .map-container {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .dark .card:hover {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .progress-step {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .progress-step {
+            background: #374151;
+            color: #9ca3af;
+        }
+        
+        .progress-step.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .progress-step.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        .progress-line {
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 100%;
+            height: 2px;
+            background: #e5e7eb;
+            transform: translateY(-50%);
+        }
+        
+        .dark .progress-line {
+            background: #374151;
+        }
+        
+        .progress-line.completed {
+            background: var(--success);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .vote-btn {
+            transition: all 0.2s ease;
+        }
+        
+        .vote-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .vote-btn.active-upvote {
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .vote-btn.active-downvote {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .priority-high { border-left: 4px solid var(--danger); }
+        .priority-medium { border-left: 4px solid var(--warning); }
+        .priority-low { border-left: 4px solid var(--success); }
+        
+        .large-font {
+            font-size: 1.125rem;
+        }
+        
+        .large-font .card {
+            font-size: 1.125rem;
+        }
+        
+        .large-font .btn {
+            font-size: 1.125rem;
+            padding: 0.75rem 1.5rem;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-slide-up {
+            animation: slideInUp 0.5s ease-out;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .dark .loading-spinner {
+            border: 3px solid #374151;
+            border-top: 3px solid var(--primary);
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    <!-- Navigation -->
+    <nav class="bg-white dark:bg-gray-800 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                            <i class="fas fa-city mr-2"></i>CivicConnect
+                        </h1>
+                    </div>
+                    <div class="hidden md:block ml-10">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="#home" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900">
+                                <i class="fas fa-home mr-1"></i>Home
+                            </a>
+                            <a href="#report" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-plus-circle mr-1"></i>Report Issue
+                            </a>
+                            <a href="#my-reports" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-list mr-1"></i>My Reports
+                            </a>
+                            <a href="#notifications" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+                                <i class="fas fa-bell mr-1"></i>Notifications
+                                <span class="notification-badge" id="notification-count">3</span>
+                            </a>
+                            <a href="#profile" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i class="fas fa-user mr-1"></i>Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Language Selector -->
+                    <select id="language-selector" class="bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-md px-3 py-1 text-sm">
+                        <option value="en">English</option>
+                        <option value="mr">मराठी</option>
+                        <option value="hi">हिंदी</option>
+                    </select>
+                    
+                    <!-- Large Font Toggle -->
+                    <button id="large-font-toggle" class="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-font"></i>
+                    </button>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-moon" id="theme-icon"></i>
+                    </button>
+                    
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-toggle" class="md:hidden p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#home" class="block px-3 py-2 rounded-md text-base font-medium text-gray-900 dark:text-white bg-blue-100 dark:bg-blue-900">
+                    <i class="fas fa-home mr-2"></i>Home
+                </a>
+                <a href="#report" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-plus-circle mr-2"></i>Report Issue
+                </a>
+                <a href="#my-reports" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-list mr-2"></i>My Reports
+                </a>
+                <a href="#notifications" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 relative">
+                    <i class="fas fa-bell mr-2"></i>Notifications
+                    <span class="notification-badge" id="mobile-notification-count">3</span>
+                </a>
+                <a href="#profile" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-user mr-2"></i>Profile
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <section id="home" class="mb-12 fade-in">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-8 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-4xl font-bold mb-2" data-i18n="welcome">Welcome to CivicConnect</h1>
+                        <p class="text-xl opacity-90" data-i18n="welcome-subtitle">Empowering citizens to report and track civic issues</p>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-3xl font-bold" id="citizen-points">1,250</div>
+                        <div class="text-sm opacity-90" data-i18n="points">Points</div>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-trophy text-yellow-300 mr-1"></i>
+                            <span class="text-sm" data-i18n="verified-reporter">Verified Reporter</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Stats -->
+        <section class="mb-12 fade-in">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                            <i class="fas fa-exclamation-triangle text-blue-600 dark:text-blue-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="total-reports">Total Reports</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">24</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 dark:bg-green-900 rounded-lg">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="resolved">Resolved</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">18</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                            <i class="fas fa-clock text-yellow-600 dark:text-yellow-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="pending">Pending</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">4</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-purple-100 dark:bg-purple-900 rounded-lg">
+                            <i class="fas fa-users text-purple-600 dark:text-purple-400 text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="community">Community</p>
+                            <p class="text-2xl font-bold text-gray-900 dark:text-white">1,247</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Report Form & My Reports -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Report Issue Form -->
+                <section id="report" class="card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <i class="fas fa-plus-circle mr-2 text-blue-600 dark:text-blue-400"></i>
+                            <span data-i18n="report-issue">Report an Issue</span>
+                        </h2>
+                        <div class="flex items-center space-x-2">
+                            <div class="progress-step completed" id="step-1">1</div>
+                            <div class="progress-line" id="line-1"></div>
+                            <div class="progress-step" id="step-2">2</div>
+                            <div class="progress-line" id="line-2"></div>
+                            <div class="progress-step" id="step-3">3</div>
+                        </div>
+                    </div>
+                    
+                    <form id="report-form" class="space-y-6">
+                        <!-- Step 1: Category and Description -->
+                        <div id="step-1-content" class="step-content">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="category">Category *</label>
+                                    <select id="category" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                        <option value="" data-i18n="select-category">Select Category</option>
+                                        <option value="roads" data-i18n="roads">Roads</option>
+                                        <option value="water" data-i18n="water">Water</option>
+                                        <option value="electricity" data-i18n="electricity">Electricity</option>
+                                        <option value="waste" data-i18n="waste">Waste</option>
+                                        <option value="sanitation" data-i18n="sanitation">Sanitation</option>
+                                        <option value="others" data-i18n="others">Others</option>
+                                    </select>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="priority">Priority *</label>
+                                    <select id="priority" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                        <option value="" data-i18n="select-priority">Select Priority</option>
+                                        <option value="low" data-i18n="low">Low</option>
+                                        <option value="medium" data-i18n="medium">Medium</option>
+                                        <option value="high" data-i18n="high">High</option>
+                                        <option value="critical" data-i18n="critical">Critical</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="description">Description *</label>
+                                <textarea id="description" required rows="4" placeholder="Please describe the issue in detail..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" data-i18n-placeholder="description-placeholder"></textarea>
+                            </div>
+                            
+                            <div class="flex justify-end">
+                                <button type="button" id="next-step-1" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <span data-i18n="next">Next</span> <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Location -->
+                        <div id="step-2-content" class="step-content hidden">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="location">Location *</label>
+                                <div class="flex space-x-4 mb-4">
+                                    <button type="button" id="detect-location" class="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                        <i class="fas fa-location-arrow mr-2"></i> <span data-i18n="detect-location">Detect Location</span>
+                                    </button>
+                                    <button type="button" id="manual-location" class="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                        <i class="fas fa-map-marker-alt mr-2"></i> <span data-i18n="manual-location">Manual Entry</span>
+                                    </button>
+                                </div>
+                                
+                                <div id="location-display" class="hidden mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="detected-location">Detected Location:</p>
+                                    <p id="location-text" class="font-medium text-gray-900 dark:text-white"></p>
+                                </div>
+                                
+                                <div id="manual-location-input" class="hidden mb-4">
+                                    <input type="text" id="address-input" placeholder="Enter your address..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" data-i18n-placeholder="address-placeholder">
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <button type="button" id="prev-step-2" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-arrow-left mr-2"></i> <span data-i18n="previous">Previous</span>
+                                </button>
+                                <button type="button" id="next-step-2" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    <span data-i18n="next">Next</span> <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Photo Upload -->
+                        <div id="step-3-content" class="step-content hidden">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="upload-photos">Upload Photos/Videos</label>
+                                <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-blue-500 transition-colors cursor-pointer" id="upload-area">
+                                    <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 dark:text-gray-500 mb-2"></i>
+                                    <p class="text-gray-600 dark:text-gray-400" data-i18n="drag-drop">Drag and drop files here or click to browse</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-1" data-i18n="file-types">Supported: JPG, PNG, MP4 (Max 10MB)</p>
+                                    <input type="file" id="file-input" accept="image/*,video/*" multiple class="hidden">
+                                </div>
+                                
+                                <div id="file-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+                            </div>
+                            
+                            <div class="flex justify-between">
+                                <button type="button" id="prev-step-3" class="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                    <i class="fas fa-arrow-left mr-2"></i> <span data-i18n="previous">Previous</span>
+                                </button>
+                                <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="fas fa-paper-plane mr-2"></i> <span data-i18n="submit-report">Submit Report</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+                
+                <!-- My Reports -->
+                <section id="my-reports" class="card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                            <i class="fas fa-list mr-2 text-blue-600 dark:text-blue-400"></i>
+                            <span data-i18n="my-reports">My Reports</span>
+                        </h2>
+                        <div class="flex space-x-2">
+                            <select id="report-filter" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="all" data-i18n="all">All</option>
+                                <option value="pending" data-i18n="pending">Pending</option>
+                                <option value="in-progress" data-i18n="in-progress">In Progress</option>
+                                <option value="resolved" data-i18n="resolved">Resolved</option>
+                            </select>
+                            <button id="export-reports" class="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+                                <i class="fas fa-download mr-1"></i> <span data-i18n="export">Export</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="reports-list" class="space-y-4">
+                        <!-- Sample Reports -->
+                        <div class="report-card priority-high bg-gray-50 dark:bg-gray-700 p-4 rounded-lg" data-status="in-progress">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">#ISS-2024-001</span>
+                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full" data-i18n="in-progress">In Progress</span>
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">2 days ago</div>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Pothole on Main Road</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Large pothole causing traffic issues near Shivaji Nagar</p>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400"><i class="fas fa-map-marker-alt mr-1"></i>Shivaji Nagar, Mumbai</span>
+                                <button class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="view-details">View Details</button>
+                            </div>
+                        </div>
+                        
+                        <div class="report-card priority-medium bg-gray-50 dark:bg-gray-700 p-4 rounded-lg" data-status="resolved">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">#ISS-2024-002</span>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full" data-i18n="resolved">Resolved</span>
+                                </div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">1 week ago</div>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 dark:text-white mb-1">Street Light Not Working</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Street light pole #45 not functioning properly</p>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400"><i class="fas fa-map-marker-alt mr-1"></i>Andheri West, Mumbai</span>
+                                <button class="text-blue-600 dark:text-blue-400 hover:underline" data-i18n="view-details">View Details</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            
+            <!-- Right Column - Map & Live Feed -->
+            <div class="space-y-8">
+                <!-- Interactive Map -->
+                <section class="card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-map mr-2 text-blue-600 dark:text-blue-400"></i>
+                        <span data-i18n="issue-map">Issue Map</span>
+                    </h2>
+                    <div id="map" class="map-container"></div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <div class="flex items-center text-sm">
+                            <div class="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
+                            <span data-i18n="high-priority">High Priority</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full mr-2"></div>
+                            <span data-i18n="medium-priority">Medium Priority</span>
+                        </div>
+                        <div class="flex items-center text-sm">
+                            <div class="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                            <span data-i18n="low-priority">Low Priority</span>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Live Feed -->
+                <section class="card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold text-gray-900 dark:text-white">
+                            <i class="fas fa-stream mr-2 text-blue-600 dark:text-blue-400"></i>
+                            <span data-i18n="live-feed">Live Feed</span>
+                        </h2>
+                        <select id="feed-sort" class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                            <option value="recent" data-i18n="most-recent">Most Recent</option>
+                            <option value="upvoted" data-i18n="most-upvoted">Most Upvoted</option>
+                            <option value="urgent" data-i18n="most-urgent">Most Urgent</option>
+                        </select>
+                    </div>
+                    
+                    <div id="live-feed" class="space-y-4 max-h-96 overflow-y-auto">
+                        <!-- Sample Feed Items -->
+                        <div class="feed-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full" data-i18n="roads">Roads</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">5 min ago</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="vote-btn p-1 text-gray-500 dark:text-gray-400 hover:text-green-600">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    </button>
+                                    <span class="text-xs font-medium">12</span>
+                                    <button class="vote-btn p-1 text-gray-500 dark:text-gray-400 hover:text-red-600">
+                                    <i class="fas fa-thumbs-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-1">Pothole near station</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Large pothole causing traffic congestion</p>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Dadar, Mumbai
+                            </div>
+                        </div>
+                        
+                        <div class="feed-item bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <div class="flex items-center space-x-2">
+                                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full" data-i18n="water">Water</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">15 min ago</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <button class="vote-btn p-1 text-gray-500 dark:text-gray-400 hover:text-green-600">
+                                        <i class="fas fa-thumbs-up"></i>
+                                    </button>
+                                    <span class="text-xs font-medium">8</span>
+                                    <button class="vote-btn p-1 text-gray-500 dark:text-gray-400 hover:text-red-600">
+                                        <i class="fas fa-thumbs-down"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <h4 class="font-medium text-gray-900 dark:text-white mb-1">Water leakage</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">Water pipe burst causing wastage</p>
+                            <div class="text-xs text-gray-500 dark:text-gray-400">
+                                <i class="fas fa-map-marker-alt mr-1"></i> Andheri, Mumbai
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Leaderboard -->
+                <section class="card bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 fade-in">
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
+                        <i class="fas fa-trophy mr-2 text-yellow-500"></i>
+                        <span data-i18n="top-contributors">Top Contributors</span>
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Rajesh Kumar</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">2,450 points</div>
+                                </div>
+                            </div>
+                            <div class="text-yellow-500">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Priya Sharma</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">2,180 points</div>
+                                </div>
+                            </div>
+                            <div class="text-gray-400">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                                <div>
+                                    <div class="font-medium text-gray-900 dark:text-white">Amit Patel</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">1,890 points</div>
+                                </div>
+                            </div>
+                            <div class="text-orange-500">
+                                <i class="fas fa-medal"></i>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications Modal -->
+    <div id="notifications-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white" data-i18n="notifications">Notifications</h3>
+                    <button id="close-notifications" class="text-gray-500 dark:text-gray-400 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="notifications-list" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Sample Notifications -->
+                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-info-circle text-blue-600 dark:text-blue-400 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Issue Assigned</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">Your report #ISS-2024-001 has been assigned to the Roads Department</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">2 hours ago</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div class="flex items-start space-x-3">
+                            <i class="fas fa-check-circle text-green-600 dark:text-green-400 mt-1"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Issue Resolved</p>
+                                <p class="text-xs text-gray-600 dark:text-gray-400">Your report #ISS-2024-002 has been marked as resolved</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-500 mt-1">1 day ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-md w-full p-6 text-center">
+                <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 dark:text-green-400 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2" data-i18n="report-submitted">Report Submitted Successfully!</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-4" data-i18n="report-submitted-message">Your issue has been reported and will be reviewed by the concerned department.</p>
+                <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg mb-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400" data-i18n="reference-number">Reference Number:</p>
+                    <p class="font-mono font-bold text-blue-600 dark:text-blue-400" id="reference-number">#ISS-2024-003</p>
+                </div>
+                <button id="close-success" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <span data-i18n="continue">Continue</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900 dark:text-white">
+                        <i class="fas fa-user-circle mr-2 text-blue-600 dark:text-blue-400"></i>
+                        <span data-i18n="profile">Profile</span>
+                    </h3>
+                    <button id="close-profile" class="text-gray-500 dark:text-gray-400 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Profile Header -->
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-20 h-20 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                        <i class="fas fa-user text-3xl text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <div>
+                        <h4 id="profile-name" class="text-xl font-bold text-gray-900 dark:text-white">Citizen User</h4>
+                        <p id="profile-email" class="text-gray-600 dark:text-gray-400">citizen@example.com</p>
+                        <div class="flex items-center mt-2">
+                            <i class="fas fa-trophy text-yellow-500 mr-1"></i>
+                            <span id="profile-level" class="text-sm text-gray-600 dark:text-gray-400">Verified Reporter</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Profile Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
+                        <div id="profile-total-reports" class="text-2xl font-bold text-gray-900 dark:text-white">24</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="total-reports">Total Reports</div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
+                        <div id="profile-resolved" class="text-2xl font-bold text-green-600">18</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="resolved">Resolved</div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
+                        <div id="profile-points" class="text-2xl font-bold text-blue-600">1,250</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="points">Points</div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg text-center">
+                        <div id="profile-rank" class="text-2xl font-bold text-purple-600">#5</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400" data-i18n="rank">Rank</div>
+                    </div>
+                </div>
+                
+                <!-- Profile Settings -->
+                <div class="space-y-4 mb-6">
+                    <h5 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="settings">Settings</h5>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="email-notifications">Email Notifications</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="email-notifications" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="sms-notifications">SMS Notifications</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="sms-notifications" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700 dark:text-gray-300" data-i18n="dark-mode">Dark Mode</span>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="profile-dark-mode" class="sr-only peer">
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="space-y-4">
+                    <h5 class="text-lg font-semibold text-gray-900 dark:text-white" data-i18n="recent-activity">Recent Activity</h5>
+                    <div id="profile-activity" class="space-y-3">
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <i class="fas fa-check-circle text-green-600"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">Report resolved: Pothole on Main Road</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">2 hours ago</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <i class="fas fa-plus-circle text-blue-600"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900 dark:text-white">New report submitted: Water leakage</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">1 day ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <button id="logout-btn" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-sign-out-alt mr-2"></i>
+                        <span data-i18n="logout">Logout</span>
+                    </button>
+                    <button id="edit-profile-btn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>
+                        <span data-i18n="edit-profile">Edit Profile</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="citizen.js"></script>
+</body>
+</html>

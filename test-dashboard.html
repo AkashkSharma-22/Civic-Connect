@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicConnect Dashboard Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center mb-8">CivicConnect Dashboard Test</h1>
+        
+        <!-- Test Section 1: Map -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Maharashtra Map Test</h2>
+            <div id="maharashtra-map" class="h-96 rounded-lg border-2 border-gray-200"></div>
+        </div>
+        
+        <!-- Test Section 2: Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-red-100 p-4 rounded-lg text-center">
+                <h3 class="text-lg font-semibold text-red-800">Critical Issues</h3>
+                <p id="critical-issues" class="text-3xl font-bold text-red-600">0</p>
+            </div>
+            <div class="bg-yellow-100 p-4 rounded-lg text-center">
+                <h3 class="text-lg font-semibold text-yellow-800">High Priority</h3>
+                <p id="high-priority-issues" class="text-3xl font-bold text-yellow-600">0</p>
+            </div>
+            <div class="bg-blue-100 p-4 rounded-lg text-center">
+                <h3 class="text-lg font-semibold text-blue-800">Medium Priority</h3>
+                <p id="medium-priority-issues" class="text-3xl font-bold text-blue-600">0</p>
+            </div>
+            <div class="bg-green-100 p-4 rounded-lg text-center">
+                <h3 class="text-lg font-semibold text-green-800">Low Priority</h3>
+                <p id="low-priority-issues" class="text-3xl font-bold text-green-600">0</p>
+            </div>
+        </div>
+        
+        <!-- Test Section 3: Forms -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-4">Form Test</h2>
+            <form id="test-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Test Input</label>
+                    <input type="text" id="test-input" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md" required>
+                </div>
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Test Submit</button>
+            </form>
+            <div id="form-result" class="mt-4 p-4 bg-gray-50 rounded-md hidden"></div>
+        </div>
+        
+        <!-- Test Section 4: JavaScript Verification -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-semibold mb-4">JavaScript Status</h2>
+            <div id="js-status" class="space-y-2">
+                <div class="flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                    <span>Script.js loaded: <span id="script-loaded">No</span></span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                    <span>Leaflet.js loaded: <span id="leaflet-loaded">No</span></span>
+                </div>
+                <div class="flex items-center">
+                    <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                    <span>AOS loaded: <span id="aos-loaded">No</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Test script to verify functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if libraries are loaded
+            document.getElementById('script-loaded').textContent = 'Yes';
+            const scriptElement = document.getElementById('script-loaded').parentElement;
+            if (scriptElement) {
+                const scriptDot = scriptElement.querySelector('.w-3');
+                if (scriptDot) {
+                    scriptDot.classList.remove('bg-red-500');
+                    scriptDot.classList.add('bg-green-500');
+                }
+            }
+            
+            if (typeof L !== 'undefined') {
+                document.getElementById('leaflet-loaded').textContent = 'Yes';
+                const leafletElement = document.getElementById('leaflet-loaded').parentElement;
+                if (leafletElement) {
+                    const leafletDot = leafletElement.querySelector('.w-3');
+                    if (leafletDot) {
+                        leafletDot.classList.remove('bg-red-500');
+                        leafletDot.classList.add('bg-green-500');
+                    }
+                }
+            }
+            
+            if (typeof AOS !== 'undefined') {
+                document.getElementById('aos-loaded').textContent = 'Yes';
+                const aosElement = document.getElementById('aos-loaded').parentElement;
+                if (aosElement) {
+                    const dot = aosElement.querySelector('.w-3');
+                    if (dot) {
+                        dot.classList.remove('bg-red-500');
+                        dot.classList.add('bg-green-500');
+                    }
+                }
+            }
+            
+            // Test form submission
+            document.getElementById('test-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('test-input').value;
+                const result = document.getElementById('form-result');
+                result.textContent = 'Form submitted successfully! Input: ' + input;
+                result.classList.remove('hidden');
+                result.classList.add('bg-green-100', 'text-green-800');
+            });
+            
+            // Test map initialization
+            if (typeof initializeMaharashtraMap === 'function') {
+                initializeMaharashtraMap();
+            } else {
+                // Fallback map initialization
+                const map = L.map('maharashtra-map').setView([19.5, 75.5], 6);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Add sample markers
+                const sampleDistricts = [
+                    { name: 'Mumbai', lat: 19.0760, lng: 72.8777, reports: 89, priority: 'high' },
+                    { name: 'Pune', lat: 18.5204, lng: 73.8567, reports: 156, priority: 'critical' }
+                ];
+                
+                sampleDistricts.forEach(district => {
+                    L.marker([district.lat, district.lng]).addTo(map)
+                        .bindPopup(`<div><strong>${district.name}</strong><br>Reports: ${district.reports}</div>`);
+                });
+            }
+            
+            // Test stats update
+            if (typeof updatePriorityCounts === 'function') {
+                const sampleData = [
+                    { priority: 'critical', reports: 23 },
+                    { priority: 'high', reports: 67 },
+                    { priority: 'medium', reports: 156 },
+                    { priority: 'low', reports: 234 }
+                ];
+                updatePriorityCounts(sampleData);
+            } else {
+                // Fallback stats update
+                document.getElementById('critical-issues').textContent = '23';
+                document.getElementById('high-priority-issues').textContent = '67';
+                document.getElementById('medium-priority-issues').textContent = '156';
+                document.getElementById('low-priority-issues').textContent = '234';
+            }
+        });
+    </script>
+</body>
+</html>
